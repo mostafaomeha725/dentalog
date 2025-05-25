@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:dentalog/Features/auth/data/models/user_model.dart';
-import 'package:dentalog/core/api/end_ponits.dart';
+
 import 'package:dentalog/core/helper/shared_preferences/shared_preferences.dart';
 import 'package:dentalog/core/services/api_service.dart';
 import 'package:equatable/equatable.dart';
@@ -12,26 +11,26 @@ class ProfileCubit extends Cubit<ProfileState> {
     final ApiService apiService;
   final SharedPreference sharedPreference;
    Future<void> getProfile() async {
-    emit(ProfileLoading());
+  emit(ProfileLoading());
 
-    final profileData = await sharedPreference.getProfileData();
+  final profileData = await sharedPreference.getProfileData();
 
-    if (profileData != null) {
-      emit(ProfileSuccess(profileData: profileData));
-    } else {
-             final id =  await SharedPreference().getUser(ApiKey.id);
+  if (profileData != null) {
+    emit(ProfileSuccess(profileData: profileData));
+  } else {
+    final result = await apiService.getProfileData(); // No ID
 
-      final result = await apiService.getProfileData(id:id! );
-
-      result.fold(
-        (failure) => emit(ProfileFailure(errMessage: failure.errMessage)),
-        (profileData) async {
-          await sharedPreference.saveProfileData(profileData['user']);
-          emit(ProfileSuccess(profileData: profileData));
-        },
-      );
-    }
-  }}
+    result.fold(
+      (failure) => emit(ProfileFailure(errMessage: failure.errMessage)),
+      (data) async {
+        final user = data['data']; // API returns user data inside 'data'
+        await sharedPreference.saveProfileData(user);
+        emit(ProfileSuccess(profileData: user));
+      },
+    );
+  }
+}
+}
 
 
 

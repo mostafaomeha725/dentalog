@@ -3,8 +3,8 @@ import 'package:dentalog/core/utiles/app_text_styles.dart';
 import 'package:flutter/material.dart';
 
 class AppointmentView extends StatelessWidget {
-  const AppointmentView({super.key});
-
+  const AppointmentView({super.key, required this.doctorId});
+final int doctorId ;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,7 +21,7 @@ class AppointmentView extends StatelessWidget {
         elevation: 0,
         centerTitle: true,
       ),
-      body: AppointmentViewBody(),
+      body: AppointmentViewBody(doctorId: doctorId,),
     );
   }
 }

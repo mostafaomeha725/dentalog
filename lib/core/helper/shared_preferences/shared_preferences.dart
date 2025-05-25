@@ -6,26 +6,38 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SharedPreference {
 
 
-  Future<void> saveId(String id) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-        ApiKey.id, id); // Save the token with the key 'user_token'
-  }
+  // Future<void> saveId(String id) async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   await prefs.setString(
+  //       ApiKey.id, id); // Save the token with the key 'user_token'
+  // }
 
   // Get token from SharedPreferences
-  Future<String?> getId() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString(
-         ApiKey.id); // Retrieve the token using the 'user_token' key
-  }
+  // Future<String?> getId() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   return prefs.getString(
+  //        ApiKey.id); // Retrieve the token using the 'user_token' key
+  // }
 
   // Remove token from SharedPreferences
-  Future<void> removeId() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs
-        .remove(ApiKey.id); // Remove the token with the key 'user_token'
+  // Future<void> removeId() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   await prefs
+  //       .remove(ApiKey.id); // Remove the token with the key 'user_token'
+  // }
+Future<void> saveToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('token', token);
   }
 
+  Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+  Future<void> removeToken() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove(ApiKey.token);
+}
   Future<void> clearProfileCache() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('user_profile');

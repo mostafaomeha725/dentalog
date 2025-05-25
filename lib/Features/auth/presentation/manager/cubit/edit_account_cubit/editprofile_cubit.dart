@@ -3,6 +3,7 @@ import 'package:dentalog/core/services/api_service.dart';
 import 'package:equatable/equatable.dart';
 
 part 'editprofile_state.dart';
+
 class EditprofileCubit extends Cubit<EditprofileState> {
   final ApiService apiService;
 

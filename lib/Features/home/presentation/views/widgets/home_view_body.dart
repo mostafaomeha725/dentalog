@@ -1,5 +1,6 @@
 import 'package:dentalog/Features/home/presentation/views/widgets/Custom_list_title.dart';
 import 'package:dentalog/Features/home/presentation/views/widgets/Custom_search_home.dart';
+import 'package:dentalog/Features/home/presentation/views/widgets/add_specialities.dart';
 import 'package:dentalog/core/app_router/app_router.dart';
 import 'package:dentalog/core/utiles/app_images.dart';
 import 'package:dentalog/core/utiles/app_text_styles.dart';
@@ -83,30 +84,9 @@ class HomeViewBody extends StatelessWidget {
           SizedBox(height: 16),
 
           // Speciality Grid
-          GridView.builder(
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            itemCount: specialities.length,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              childAspectRatio: 0.8,
-            ),
-            itemBuilder: (context, index) {
-              return Column(
-                children: [
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Colors.blue[50],
-                    child: Image.asset(specialities[index]["icon"].toString(),
-                        height: 30), // ضع أيقونة هنا
-                  ),
-                  SizedBox(height: 5),
-                  Text(specialities[index]["name"].toString(),
-                      style: TextStyles.bold8w600inter),
-                ],
-              );
-            },
-          ),
+         
+
+         AddSpecialities(),
         ],
       ),
     );

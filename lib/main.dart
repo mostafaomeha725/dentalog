@@ -1,4 +1,6 @@
 import 'package:dentalog/Features/auth/presentation/manager/cubit/profile_cubit/profile_cubit.dart';
+import 'package:dentalog/Features/home/presentation/manager/cubit/show_doctor_cubit/showdoctor_cubit.dart';
+import 'package:dentalog/Features/home/presentation/manager/cubit/show_specialties_cubit/show_specialties_cubit.dart';
 import 'package:dentalog/core/app_router/app_router.dart';
 import 'package:dentalog/core/helper/BlocObserve/Simple_Bloc_Observe.dart';
 import 'package:dentalog/core/helper/shared_preferences/shared_preferences.dart';
@@ -17,6 +19,12 @@ runApp(
       providers: [
         BlocProvider<ProfileCubit>(
           create: (context) => ProfileCubit( ApiService(),SharedPreference())..getProfile(),
+        ),
+         BlocProvider<ShowSpecialtiesCubit>(
+          create: (context) => ShowSpecialtiesCubit( ApiService())..showSpecialties(),
+        ),
+         BlocProvider<ShowdoctorCubit>(
+          create: (context) => ShowdoctorCubit()..fetchDoctors(),
         ),
 
       ],

@@ -5,8 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dentalog/core/utiles/app_images.dart';
 import 'package:dentalog/core/utiles/app_text_styles.dart';
 import 'package:dentalog/Features/home/presentation/views/widgets/delete_account.dart';
-import 'package:dentalog/core/helper/shared_preferences/shared_preferences.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+// ... import statements ...
 class EditProfileViewBody extends StatelessWidget {
   const EditProfileViewBody({super.key, required this.userData});
   final Map<String, dynamic> userData;
@@ -22,8 +22,6 @@ class EditProfileViewBody extends StatelessWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('تم تعديل البيانات بنجاح')),
           );
-
-          // إعادة تحميل الملف الشخصي وتحديث SharedPreferences
           await context.read<ProfileCubit>().getProfile();
         } else if (state is EditprofileFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -65,29 +63,29 @@ class EditProfileViewBody extends StatelessWidget {
                 ],
               ),
               SizedBox(height: screenHeight * 0.02),
-              _buildSectionTitle("Personal Information"),
+              _buildSectionTitle("المعلومات الشخصية"),
               _EditableField(
-                label: "Name",
+                label: "الاسم",
                 fieldKey: "name",
                 initialValue: userData['name'] ?? '',
                 userData: userData,
               ),
               _EditableField(
-                label: "Email",
+                label: "البريد الإلكتروني",
                 fieldKey: "email",
                 initialValue: userData['email'] ?? '',
                 userData: userData,
               ),
               _EditableField(
-                label: "Contact Number",
+                label: "رقم الهاتف",
                 fieldKey: "phone",
                 initialValue: userData['phone'] ?? '',
                 userData: userData,
               ),
               _EditableField(
-                label: "Password",
+                label: "كلمة المرور",
                 fieldKey: "password",
-                initialValue: "********",
+                initialValue: '',
                 userData: userData,
               ),
               SizedBox(height: screenHeight * 0.01),
@@ -148,7 +146,8 @@ class _EditableFieldState extends State<_EditableField> {
     controller.dispose();
     super.dispose();
   }
-void _submitChange() async {
+
+  Future<void> _submitChange() async {
   final updatedValue = controller.text.trim();
 
   if (updatedValue.isEmpty) {
@@ -158,37 +157,39 @@ void _submitChange() async {
     return;
   }
 
-  final updatedUserData = Map<String, dynamic>.from(widget.userData);
+  final prefs = await SharedPreferences.getInstance();
+  final storedId = prefs.getString('id'); 
+  print(storedId);// تأكد أن المفتاح المستخدم هنا هو نفس المفتاح اللي خزنت به
 
-  updatedUserData[widget.fieldKey] = updatedValue;
+  if (storedId == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('تعذر العثور على معرف المستخدم')),
+    );
+    return;
+  }
 
-  final updatedProfileData = {
-    'id': widget.userData['id'] ?? '',
-    'name': widget.fieldKey == 'name' ? updatedValue : (widget.userData['name'] ?? ''),
-    'email': widget.fieldKey == 'email' ? updatedValue : (widget.userData['email'] ?? ''),
-    'phone': widget.fieldKey == 'phone' ? updatedValue : (widget.userData['phone'] ?? ''),
-    'password': widget.fieldKey == 'password' ? updatedValue : (widget.userData['password'] ?? ''),
-    'role': widget.userData['role'] ?? '',
-  };
+    final updatedProfileData = {
+      'id': storedId,
+      'name': widget.fieldKey == 'name' ? updatedValue : (widget.userData['name'] ?? ''),
+      'email': widget.fieldKey == 'email' ? updatedValue : (widget.userData['email'] ?? ''),
+      'phone': widget.fieldKey == 'phone' ? updatedValue : (widget.userData['phone'] ?? ''),
+      'password': widget.fieldKey == 'password' ? updatedValue : '',
+      'role': widget.userData['role'] ?? 'user',
+    };
 
-  // إرسال البيانات إلى السيرفر
-  await context.read<EditprofileCubit>().editProfile(
-        id: updatedProfileData['id'],
-        name: updatedProfileData['name'],
-        email: updatedProfileData['email'],
-        phone: updatedProfileData['phone'],
-        password: updatedProfileData['password'],
-        role: updatedProfileData['role'],
-      );
+    await context.read<EditprofileCubit>().editProfile(
+          id: updatedProfileData['id'],
+          name: updatedProfileData['name'],
+          email: updatedProfileData['email'],
+          phone: updatedProfileData['phone'],
+          password: updatedProfileData['password'],
+          role: updatedProfileData['role'],
+        );
 
-  // حفظ البيانات المعدّلة محلياً
-  await SharedPreference().saveProfileData(updatedProfileData);
-
-  setState(() {
-    isEditing = false;
-  });
-}
-
+    setState(() {
+      isEditing = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -217,7 +218,7 @@ void _submitChange() async {
                   decoration: const InputDecoration(border: InputBorder.none),
                 )
               : Text(
-                  controller.text,
+                  controller.text.isEmpty ? '********' : controller.text,
                   style: TextStyles.bold16w400.copyWith(color: const Color(0xff6D6565)),
                 ),
           trailing: widget.isEditable
@@ -239,3 +240,4 @@ void _submitChange() async {
     );
   }
 }
+

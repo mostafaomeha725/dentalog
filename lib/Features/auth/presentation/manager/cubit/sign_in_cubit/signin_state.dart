@@ -9,11 +9,11 @@ final class SignInInitial extends SignInState {}
 final class SignInLoading extends SignInState {}
 
 final class SignInSuccess extends SignInState {
+  final String token;
 
-  final String userId; // Add user ID to success state
-
-  SignInSuccess({ required this.userId});
+  SignInSuccess({required this.token});
 }
+
 
 final class SignInFailure extends SignInState {
   final String errMessage;

@@ -90,10 +90,17 @@ abstract class AppRouter {
           path: kForgetPasswordView,
           builder: (context, state) => const ForgetYourPasswordView(),
         ),
-        GoRoute(
-          path: kVerificationCodeView,
-          builder: (context, state) => const VerificationCodeView(),
-        ),
+         GoRoute(
+  path: kVerificationCodeView,
+  builder: (context, state) {
+    final args = state.extra as OtpArguments;
+    return VerificationCodeView(
+      phone: args.phone,
+      email: args.email,
+      password: args.password,
+    );
+  },
+),
         GoRoute(
           path: kCreatePasswordView,
           builder: (context, state) => const CreatePasswordView(),
@@ -108,15 +115,40 @@ abstract class AppRouter {
         ),
         GoRoute(
           path: kDoctorInfoView,
-          builder: (context, state) => DoctorInfoView(),
+          pageBuilder: (context, state) {
+            final doctor = state.extra as Map;
+            return MaterialPage(
+              child: DoctorInfoView(doctor: doctor),
+            );
+          },
         ),
-        GoRoute(
-          path: kBookAppointmentView,
-          builder: (context, state) => BookAppointmentView(),
-        ),
-        GoRoute(
+GoRoute(
+  path: AppRouter.kBookAppointmentView,
+  builder: (context, state) {
+    final extra = state.extra as Map<String, dynamic>;
+    final selectedDate = extra['selectedDate'] as DateTime;
+    final selectedTime = extra['selectedTime'] as String;
+        final doctorId = extra['DoctorId'] as int;
+
+
+    return BookAppointmentView(
+      selectedDate: selectedDate,
+      selectedTime: selectedTime,
+      doctorId:doctorId,
+    );
+  },
+),
+
+
+
+         GoRoute(
           path: kappointmentView,
-          builder: (context, state) => AppointmentView(),
+          pageBuilder: (context, state) {
+            final doctorId = state.extra as int;
+            return MaterialPage(
+              child: AppointmentView(doctorId: doctorId),
+            );
+          },
         ),
         GoRoute(
           path: kProfileView,
@@ -158,4 +190,13 @@ abstract class AppRouter {
       ],
     );
   }
+}
+
+
+class OtpArguments {
+  final String email;
+  final String password;
+  final String phone;
+
+  OtpArguments(this.phone, {required this.email, required this.password});
 }

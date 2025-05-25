@@ -1,9 +1,7 @@
-import 'package:dentalog/core/api/end_ponits.dart';
 import 'package:dentalog/core/app_router/app_router.dart';
 import 'package:dentalog/core/helper/shared_preferences/shared_preferences.dart';
 import 'package:dentalog/core/utiles/app_images.dart';
 import 'package:dentalog/core/utiles/app_text_styles.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -35,11 +33,11 @@ Future<void> _navigateToNextScreen() async {
     GoRouter.of(context).pushReplacement(AppRouter.kOnboardingView);
     return; // عشان يوقف هنا وما ينفذ الباقي
   }
-    String? id = await SharedPreference().getUser(ApiKey.id);
+    String? token = await SharedPreference().getToken();
 
  
 
-  if (id == null) {
+  if (token == null) {
     // ignore: use_build_context_synchronously
     GoRouter.of(context).pushReplacement(AppRouter.kTypeUserView);
   } else {
@@ -47,6 +45,7 @@ Future<void> _navigateToNextScreen() async {
     GoRouter.of(context).pushReplacement(AppRouter.kHomeView);
   }
 }
+
 
 
   @override

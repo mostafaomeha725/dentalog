@@ -1,23 +1,23 @@
 class SignInModel {
   final String message;
   final bool isVerified;
-  final String userId;
+  final String token;
   final Map<String, dynamic> fullUserData;
 
   SignInModel({
     required this.message,
     required this.isVerified,
-    required this.userId,
+    required this.token,
     required this.fullUserData,
   });
 
   factory SignInModel.fromJson(Map<String, dynamic> json) {
-    final user = json['user'] ?? {};
+    final user = json['data']['user'] ?? {};
 
     return SignInModel(
       message: json['message'] ?? "Login successful",
-      isVerified: user['is_verified'] ?? false,
-      userId: user['id'].toString(),
+      isVerified: user['is_verified'] == "1" || user['is_verified'] == true,
+      token: json['data']['token'] ?? '',
       fullUserData: Map<String, dynamic>.from(user),
     );
   }
@@ -25,7 +25,7 @@ class SignInModel {
   Map<String, dynamic> toJson() => {
         "message": message,
         "is_verified": isVerified,
-        "user_id": userId,
+        "token": token,
         "user": fullUserData,
       };
 }

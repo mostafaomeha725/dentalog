@@ -29,10 +29,10 @@ class _SignUpViewBodyState extends State<SignUpViewBody> {
     return BlocConsumer<SignupCubit, SignUpState>(
       listener: (context, state)  async{
         if (state is SignUpSuccess) {
-          _showSnackBar(context, "Registration successful");
-                          await context.read<ProfileCubit>().getProfile();
+                    GoRouter.of(context).push(AppRouter.kVerificationCodeView,extra: OtpArguments(phone!, email: email!, password: password!));
 
-          GoRouter.of(context).pushReplacement(AppRouter.kHomeView);
+          _showSnackBar(context, "Registration successful");
+
         } else if (state is SignUpFailure) {
           _showSnackBar(context, state.errMessage);
         }

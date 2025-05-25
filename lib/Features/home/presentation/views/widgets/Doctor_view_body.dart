@@ -1,7 +1,11 @@
+import 'package:dentalog/Features/home/presentation/manager/cubit/show_doctor_cubit/showdoctor_cubit.dart';
 import 'package:dentalog/Features/home/presentation/views/widgets/Doctor_card.dart';
 import 'package:dentalog/Features/home/presentation/views/widgets/list_doctor_card.dart';
 import 'package:dentalog/core/utiles/app_text_styles.dart';
+import 'package:dentalog/core/api/end_ponits.dart';
+import 'package:dentalog/Features/home/presentation/manager/cubit/show_specialties_cubit/show_specialties_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DoctorViewBody extends StatefulWidget {
   const DoctorViewBody({super.key});
@@ -14,68 +18,135 @@ class _DoctorViewBodyState extends State<DoctorViewBody> {
   int selectedIndex = 0;
 
   @override
+  void initState() {
+    super.initState();
+    context.read<ShowSpecialtiesCubit>().showSpecialties(); // جلب البيانات عند فتح الشاشة
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text("Departments", style: TextStyles.bold18w500),
-          SizedBox(height: 32),
-          Container(
-            height: 80,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: ListDoctorCard.categories.length,
-              itemBuilder: (context, index) {
-                bool isSelected = selectedIndex == index;
+          const SizedBox(height: 32),
 
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      selectedIndex = index;
-                    });
-                  },
-                  child: Container(
-                    width: 70,
-                    height: 80,
-                    margin: EdgeInsets.only(right: 16),
-                    padding: EdgeInsets.symmetric(horizontal: 20),
-                    decoration: BoxDecoration(
-                      color: isSelected ? Color(0xff134FA2) : Colors.blue[50],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Center(
-                      child: ListDoctorCard.categories[index]["icon"] == null
-                          ? Text(ListDoctorCard.categories[index]["label"],
-                              style: TextStyles.bold18w600
-                                  .copyWith(color: Colors.white))
-                          : Image.asset(
-                              ListDoctorCard.categories[index]["icon"],
-                              width: 30,
-                              height: 30,
-                            ),
-                    ),
+          // BlocConsumer لعرض التخصصات
+          BlocConsumer<ShowSpecialtiesCubit, ShowSpecialtiesState>(
+            listener: (context, state) {
+              if (state is ShowSpecialtiesFailure) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('فشل في جلب التخصصات: ${state.message}')),
+                );
+              }
+            },
+            builder: (context, state) {
+              if (state is ShowSpecialtiesLoading) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (state is ShowSpecialtiesSuccess) {
+                final specialties = state.data[ApiKey.data] as List<dynamic>;
+
+                return SizedBox(
+                  height: 80,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: specialties.length,
+                    itemBuilder: (context, index) {
+                      final item = specialties[index];
+                      final bool isSelected = selectedIndex == index;
+
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedIndex = index;
+                          });
+
+                        
+                        },
+                        child: Container(
+                          width: 70,
+                          height: 80,
+                          margin: const EdgeInsets.only(right: 16),
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          decoration: BoxDecoration(
+                            color: isSelected ? const Color(0xff134FA2) : Colors.blue[50],
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Center(
+                            child: item["icon"] == null
+                                ? Text(
+                                    item["name"] ?? '',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyles.bold18w600.copyWith(
+                                      color: isSelected ? Colors.white : Colors.black,
+                                      fontSize: 12,
+                                    ),
+                                  )
+                                : Image.network(
+                                    item["icon"],
+                                    width: 30,
+                                    height: 30,
+                                    errorBuilder: (context, error, stackTrace) =>
+                                        const Icon(Icons.broken_image),
+                                  ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 );
-              },
-            ),
+              } else {
+                return const SizedBox.shrink();
+              }
+            },
           ),
-          SizedBox(height: 30),
+
+          const SizedBox(height: 30),
           Text("All Doctors",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          SizedBox(height: 10),
-          Expanded(
-            child: ListView.builder(
-              itemCount: ListDoctorCard.doctors.length,
-              itemBuilder: (context, index) {
-                return DoctorCard(doctor: ListDoctorCard.doctors[index]);
-              },
-            ),
-          ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10),
+
+       DoctorListView(),
+
         ],
       ),
+    );
+  }
+}
+
+class DoctorListView extends StatelessWidget {
+  const DoctorListView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ShowdoctorCubit, ShowdoctorState>(
+      builder: (context, state) {
+        if (state is ShowdoctorLoading) {
+          return Center(child: CircularProgressIndicator());
+        } else if (state is ShowdoctorFailure) {
+          return Center(child: Text("Error: ${state.errorMessage}"));
+        } else if (state is ShowdoctorSuccess) {
+  final doctors = state.doctorsData;
+  if (doctors.isEmpty) {
+    return Center(child: Text("No doctors available"));
+  }
+
+  return Expanded(
+    child: ListView.builder(
+      itemCount: doctors.length,
+      itemBuilder: (context, index) {
+        return DoctorCard(doctor: doctors[index]);
+      },
+    ),
+  );
+}
+ else {
+          return SizedBox.shrink();
+        }
+      },
     );
   }
 }

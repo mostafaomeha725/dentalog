@@ -4,12 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class DoctorCard extends StatelessWidget {
-  final Map<String, dynamic> doctor;
+  final Map doctor;
 
-  const DoctorCard({Key? key, required this.doctor}) : super(key: key);
+  const DoctorCard({super.key, required this.doctor});
 
   @override
   Widget build(BuildContext context) {
+    final user = doctor['user'];
+    final speciality = doctor['speciality'];
+    final imageUrl = 'https://your-base-url.com/${user['image']}'; // Replace base url
+
     return Container(
       margin: EdgeInsets.symmetric(vertical: 8),
       padding: EdgeInsets.all(12),
@@ -26,32 +30,33 @@ class DoctorCard extends StatelessWidget {
         ],
       ),
       child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start, // لجعل الصورة تبدأ من الأعلى
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // صورة الطبيب و "Next Available"
+          // Image and Availability
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.asset(
-                  doctor['image'],
+                child: Image.network(
+                  imageUrl,
                   width: 92,
                   height: 85,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      Icon(Icons.person, size: 85),
                 ),
               ),
               SizedBox(height: 6),
-              // "Next Available" تحت الصورة مباشرة
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text("Next Available",
-                      style: TextStyles.bold13w500
-                          .copyWith(color: Color(0xff134FA2))),
+                      style: TextStyles.bold13w500.copyWith(color: Color(0xff134FA2))),
                   Text(
-                    doctor['availableTime'],
+                    doctor['schedules'] != null && doctor['schedules'].isNotEmpty
+                        ? doctor['schedules'][0]['start_time'].toString().substring(11, 16)
+                        : 'N/A',
                     style: TextStyles.bold12w500.copyWith(color: Colors.grey),
                   ),
                 ],
@@ -60,31 +65,25 @@ class DoctorCard extends StatelessWidget {
           ),
           SizedBox(width: 12),
 
-          // تفاصيل الطبيب
+          // Doctor Info
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(user['name'], style: TextStyles.bold18w500),
                 Text(
-                  doctor['name'],
-                  style: TextStyles.bold18w500,
+                  speciality['name'],
+                  style: TextStyles.bold13w400.copyWith(color: Color(0xff134FA2)),
                 ),
                 Text(
-                  doctor['speciality'],
-                  style:
-                      TextStyles.bold13w400.copyWith(color: Color(0xff134FA2)),
-                ),
-                Text(
-                  doctor['phone'],
+                  user['phone'],
                   style: TextStyles.bold12w300.copyWith(color: Colors.grey),
                 ),
-
-                // تصنيف النجوم
                 Row(
                   children: List.generate(
                     5,
                     (index) => Icon(
-                      index < doctor['rating'].toInt()
+                      index < double.parse(doctor['average_rating']).round()
                           ? Icons.star
                           : Icons.star_border,
                       color: Colors.amber,
@@ -92,10 +91,7 @@ class DoctorCard extends StatelessWidget {
                     ),
                   ),
                 ),
-
                 SizedBox(height: 6),
-
-                // زر الحجز
                 Align(
                   alignment: Alignment.centerRight,
                   child: ElevatedButton(
@@ -106,12 +102,11 @@ class DoctorCard extends StatelessWidget {
                       ),
                     ),
                     onPressed: () {
-                      GoRouter.of(context).push(AppRouter.kDoctorInfoView);
+                      GoRouter.of(context).push(AppRouter.kDoctorInfoView,extra: doctor);
                     },
                     child: Text(
                       "Book Now",
-                      style:
-                          TextStyles.bold12w500.copyWith(color: Colors.white),
+                      style: TextStyles.bold12w500.copyWith(color: Colors.white),
                     ),
                   ),
                 ),

@@ -10,7 +10,7 @@ class SignupCubit extends Cubit<SignUpState> {
   SignupCubit(this.apiService, this.sharedPreference) : super(SignUpInitial());
 
   final ApiService apiService;
-  final SharedPreference sharedPreference ;
+  final SharedPreference sharedPreference;
 
   Future<void> registerUser({
     required String name,
@@ -32,16 +32,13 @@ class SignupCubit extends Cubit<SignUpState> {
 
       result.fold(
         (failure) => emit(SignUpFailure(errMessage: failure.errMessage)),
-        (_) async { 
-           await sharedPreference.clearProfileCache();
-
-
-        // ✅ حفظ بيانات المستخدم
-          emit(SignUpSuccess(email: email, password: password),);}
+        (_) async {
+          await sharedPreference.clearProfileCache();
+          emit(SignUpSuccess(email: email, password: password));
+        },
       );
     } catch (e) {
-      emit(SignUpFailure(errMessage: "An unexpected error occurred"));
+      emit(SignUpFailure(errMessage: "حدث خطأ غير متوقع"));
     }
   }
 }
-  

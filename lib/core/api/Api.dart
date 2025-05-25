@@ -18,21 +18,21 @@ class Api {
       Options? options;
 
       if (withAuth) {
-        String? userId = await SharedPreference().getId();
-        if (userId == null) {
+        String? token = await SharedPreference().getToken();
+        if (token == null) {
           return Left(ServerFailure('No token found'));
         }
 
         options = Options(
           headers: {
-           
+           'Authorization': 'Bearer $token',
             'Accept': 'application/json',
           },
         );
       }
 
       final response = await dio.get(
-        '${EndPoint.baseUrl}$name${EndPoint.phpurl}$id',
+        '${EndPoint.baseUrl}$name',
         options: options,
       );
 
@@ -62,10 +62,11 @@ class Api {
     Options? options;
 
     if (withAuth) {
-      String? userId = await SharedPreference().getId();
-      if (userId == null) return Left(ServerFailure('No userId found'));
+      String? token = await SharedPreference().getToken();
+      if (token == null) return Left(ServerFailure('No token found'));
       options = Options(
         headers: {
+           'Authorization': 'Bearer $token',
           'Accept': 'application/json',
         },
         validateStatus: (status) => status != null && status < 500,
@@ -73,12 +74,12 @@ class Api {
     }
 
     final response = await dio.post(
-      '${EndPoint.baseUrl}$name${EndPoint.phpurl}',
+      '${EndPoint.baseUrl}$name',
       data: body,
       options: options,
     );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200||response.statusCode == 201) {
       return Right(response.data);
     }
 
@@ -94,7 +95,6 @@ class Api {
   }
 }
 
-
 Future<Either<Failure, Map<String, dynamic>>> delete({
   required String name,
   required Map<String, dynamic> body,
@@ -102,28 +102,28 @@ Future<Either<Failure, Map<String, dynamic>>> delete({
   bool withAuth = false,
 }) async {
   try {
-    Options options = Options(
-      headers: {
-        'Accept': 'application/json',
-      },
+    final headers = {
+      'Accept': 'application/json',
+    };
+
+    if (withAuth) {
+      final token = await SharedPreference().getToken(); // تأكد إنك عامل دالة getToken
+      if (token == null) return Left(ServerFailure('No token found'));
+      headers['Authorization'] = 'Bearer $token';
+    }
+
+    final options = Options(
+      headers: headers,
       validateStatus: (status) => status != null && status < 500,
     );
 
-    if (withAuth) {
-      String? userId = await SharedPreference().getId();
-      if (userId == null) return Left(ServerFailure('No userId found'));
-
-      // لو محتاج تبعت الـ token ممكن تضيفه هنا
-      // options.headers!['Authorization'] = 'Bearer $userId';
-    }
-
     final response = await dio.delete(
-      '${EndPoint.baseUrl}$name${EndPoint.phpurl}',
+      '${EndPoint.baseUrl}$name',
       data: body,
       options: options,
     );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 && response.data['success'] == true) {
       return Right(response.data);
     }
 
@@ -138,6 +138,7 @@ Future<Either<Failure, Map<String, dynamic>>> delete({
     return Left(ServerFailure('An unexpected error occurred'));
   }
 }
+
 
 
   

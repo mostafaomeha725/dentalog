@@ -1,7 +1,11 @@
+import 'package:dentalog/Features/auth/presentation/manager/cubit/sign_out_cubit/signout_cubit.dart';
+import 'package:dentalog/core/helper/shared_preferences/shared_preferences.dart';
+import 'package:dentalog/core/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:dentalog/Features/home/presentation/views/widgets/Custom_list_title.dart';
 import 'package:dentalog/core/app_router/app_router.dart';
 import 'package:dentalog/core/utiles/app_text_styles.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class ProfileView extends StatelessWidget {
@@ -80,9 +84,35 @@ class ProfileView extends StatelessWidget {
                     SizedBox(height: dividerSpacing),
                     _buildDivider(),
                     SizedBox(height: itemSpacing),
-                    _buildListTile(Icons.logout, "Log out", onTap: () {
-                      GoRouter.of(context).go(AppRouter.kLoginView);
-                    }),
+                   BlocProvider(
+  create: (context) => SignoutCubit(ApiService(), SharedPreference()),
+  child: BlocConsumer<SignoutCubit, SignoutState>(
+    listener: (context, state) {
+      if (state is SignoutSuccess) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("تم تسجيل الخروج بنجاح")),
+        );
+        GoRouter.of(context).go(AppRouter.kLoginView);
+      } else if (state is SignoutFailure) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(state.message)),
+        );
+      }
+    },
+    builder: (context, state) {
+      return _buildListTile(
+        Icons.logout,
+        state is SignoutLoading ? "جاري تسجيل الخروج..." : "Log out",
+        onTap: state is SignoutLoading
+            ? null
+            : () {
+                context.read<SignoutCubit>().signOut();
+              },
+      );
+    },
+  ),
+),
+
                     SizedBox(height: dividerSpacing),
                     _buildDivider(),
                   ],

@@ -4,8 +4,11 @@ import 'package:dentalog/core/widgets/Custom_buttom.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:intl/intl.dart'; // <-- تأكد من إضافة هذه المكتبة
 
 class AppointmentViewBody extends StatefulWidget {
+  const AppointmentViewBody({super.key, required this.doctorId});
+final int doctorId ;
   @override
   _AppointmentViewBodyState createState() => _AppointmentViewBodyState();
 }
@@ -45,17 +48,17 @@ class _AppointmentViewBodyState extends State<AppointmentViewBody> {
                 borderRadius: BorderRadius.circular(10),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.15), // ظل أكثر وضوحًا
+                    color: Colors.black.withOpacity(0.15),
                     blurRadius: 6,
-                    spreadRadius: 2, // تمديد الظل قليلاً حول العنصر
-                    offset: Offset(0,
-                        3), // تحريك الظل للأسفل قليلًا لمحاكاة التأثير الطبيعي
+                    spreadRadius: 2,
+                    offset: Offset(0, 3),
                   ),
                 ],
               ),
               child: TableCalendar(
-                firstDay: DateTime.utc(2023, 1, 1),
-                lastDay: DateTime.utc(2025, 12, 31),
+                firstDay: DateTime.now(),
+              lastDay: DateTime.now().add(Duration(days: 365)),
+
                 focusedDay: _selectedDate,
                 selectedDayPredicate: (day) => isSameDay(_selectedDate, day),
                 onDaySelected: (selectedDay, focusedDay) {
@@ -101,58 +104,62 @@ class _AppointmentViewBodyState extends State<AppointmentViewBody> {
                     height: 40,
                     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                     decoration: BoxDecoration(
-                      color:
-                          isSelected ? Color(0xff134FA2) : Colors.blue.shade100,
+                      color: isSelected ? Color(0xff134FA2) : Colors.blue.shade100,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       time,
                       style: isSelected
                           ? TextStyles.bold13w500.copyWith(color: Colors.white)
-                          : TextStyles.bold13w500
-                              .copyWith(color: Color(0xff134FA2)),
+                          : TextStyles.bold13w500.copyWith(color: Color(0xff134FA2)),
                     ),
                   ),
                 );
               }).toList(),
             ),
-            SizedBox(
-              height: 60,
-            ),
-            //  Spacer(),
-            // ElevatedButton(
-            //   style: ElevatedButton.styleFrom(
-            //     backgroundColor: Color(0xff134FA2),
-            //     shape: RoundedRectangleBorder(
-            //       borderRadius: BorderRadius.circular(10),
-            //     ),
-            //     padding: EdgeInsets.symmetric(vertical: 16),
-            //   ),
-            //   onPressed: () {
-            //     if (_selectedTime != null) {
-            //       // Proceed to the next step
-            //       print(
-            //           "Appointment booked for $_selectedDate at $_selectedTime");
-            //     }
-            //     GoRouter.of(context).go(AppRouter.kBookAppointmentView);
-            //   },
-            //   child: Center(
-            //     child: Text(
-            //       "Next",
-            //       style: TextStyle(fontSize: 16, color: Colors.white),
-            //     ),
-            //   ),
-            // ),
+            SizedBox(height: 60),
             CustomButtom(
               text: "Next",
-              onPressed: () {
-                GoRouter.of(context).push(AppRouter.kBookAppointmentView);
-              },
+             onPressed: () {
+  if (_selectedTime != null) {
+    // ✅ صيغة الوقت 24 ساعة
+    String formattedTime = _formatTime(_selectedTime!);
+
+    GoRouter.of(context).push(
+      AppRouter.kBookAppointmentView,
+      extra: {
+        'selectedDate': _selectedDate, // ⬅️ DateTime مباشرة
+        'selectedTime': formattedTime,
+        'DoctorId':widget.doctorId // ⬅️ String
+      },
+    );
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Please select a time.")),
+    );
+  }
+},
+
               issized: true,
-            ),
+            )
           ],
         ),
       ),
     );
+  }
+
+  String _formatTime(String time12h) {
+    final parts = time12h.split(RegExp(r'[: ]'));
+    int hour = int.parse(parts[0]);
+    final minute = int.parse(parts[1]);
+    final period = parts[2];
+
+    if (period == "PM" && hour != 12) hour += 12;
+    if (period == "AM" && hour == 12) hour = 0;
+
+    final hourStr = hour.toString().padLeft(2, '0');
+    final minuteStr = minute.toString().padLeft(2, '0');
+
+    return '$hourStr:$minuteStr:00';
   }
 }
