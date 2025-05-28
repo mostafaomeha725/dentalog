@@ -253,86 +253,51 @@ Future<Either<Failure, Map<String, dynamic>>> showSpecialties() async {
     return response; // Already Either<Failure, Map<String, dynamic>>
   }
 
-//   Future<Either<Failure, Map<String, dynamic>>> getCategory() async {
-//     final result = await Api().get(
-//       name: "categories",
-//       errMessage: "Failed to get categories",
-//     );
 
-//     return result;
-//   }
+  Future<Either<Failure, Map<String, dynamic>>> showReportById(int reportId) async {
+  final response = await Api().get(
+    name: "reports/$reportId",
+    errMessage: "Failed to get report details",
+    withAuth: true
+  );
 
-//   Future<Either<Failure, Map<String, dynamic>>> getContentByCategory(
-//       int categoryId) async {
-//     final result = await Api().get(
-//       name: 'categories/$categoryId/contents',
-//       errMessage: 'Failed to get content by category',
-//     );
-//     return result;
-//   }
-
-//   Future<Either<Failure, Map<String, dynamic>>> getSpecificCategory(
-//       int id) async {
-//     final result = await Api().get(
-//       name: 'categories/$id',
-//       errMessage: 'Failed to get specific category',
-//     );
-//     return result;
-//   }
-
-//   Future<Either<Failure, Map<String, dynamic>>> getAllContents() async {
-//     final result = await Api().get(
-//       name: 'contents',
-//       errMessage: 'Failed to get All category',
-//     );
-//     return result;
-//   }
-// //getallvoucher
-//     Future<Either<Failure, Map<String, dynamic>>> getAllVoucher() async {
-//       final result = await Api().get(
-//         name: 'vouchers',
-//         errMessage: 'Failed to get All voucher',
-//         withAuth: true
-//       );
-      
-//       return result;
-//     }     
-// Future<Either<Failure, Map<String, dynamic>>> getUserVouchers(String userId) async {
-//   final result = await Api().get(
-//     name: 'users/$userId/vouchers',
-//     errMessage: 'Failed to get user vouchers',
-//     withAuth: true,
-//   );
-
-//   return result;
-// }
+  return response; // إما Failure أو Map<String, dynamic> حسب النتيجة
+}
 
 
-// Future<Either<Failure, Map<String, dynamic>>> getuserpoint(String userId) async {
-//   final result = await Api().get(
-//     name: 'users/$userId/points',
-//     errMessage: 'Failed to get user points',
-//     withAuth: true,
-//   );
+  Future<Either<Failure, Map<String, dynamic>>> showAppointments() async {
+  final response = await Api().get(
+    name: "appointments",
+    errMessage: "Failed to get appointments",
+    withAuth: true, // assuming appointments need authentication
+  );
 
-//   return result;
-// }
+  return response; // This will be Either<Failure, Map<String, dynamic>>
+}
 
-// Future<Either<Failure, Map<String, dynamic>>> purchaseVoucher(int voucherId) async {
-//   final response = await Api().post(
-//     name: 'vouchers/purchase?voucher_id=$voucherId',
-//     withAuth: true,
-//     errMessage: 'Failed to purchase voucher',
-//   );
 
-//   return response.fold(
-//     (failure) => Left(failure),
-//     (data) {
-//       final voucherData = data['data'] as Map<String, dynamic>;
-//       return Right(voucherData);
-//     },
-//   );
-// }
+
+Future<Either<Failure, Map<String, dynamic>>> showWaitingAppointments() async {
+  final response = await Api().get(
+    name: "waiting-list", // ← غيّر هذا حسب اسم endpoint الحقيقي لقائمة الانتظار
+    errMessage: "Failed to get waiting list",
+    withAuth: true,
+  );
+
+  return response; // Either<Failure, Map<String, dynamic>>
+}
+
+
+
+Future<Either<Failure, Map<String, dynamic>>> showHistory() async {
+  final response = await Api().get(
+    name: "reports/history", // استبدله بالمسار الصحيح إن وُجد
+    errMessage: "Failed to get report history",
+    withAuth: true,
+  );
+
+  return response;
+}
 
 
 Future<Either<Failure, Map<String, dynamic>>> submitAppointmentRequest({
@@ -375,6 +340,32 @@ Future<Either<Failure, Map<String, dynamic>>> submitAppointmentRequest({
 }
 
 
+Future<Either<Failure, Map<String, dynamic>>> rescheduleAppointmentRequest({
+  required int appointmentId,
+  required String appointmentDate,
+  required String appointmentTime,
+}) async {
+  final response = await Api().post(
+    name: 'appointments/$appointmentId/reschedule',
+    withAuth: true,
+    body: {
+      'appointment_date': appointmentDate,
+      'appointment_time': appointmentTime,
+    },
+    errMessage: 'فشل في إعادة جدولة الموعد',
+  );
+
+  return response.fold(
+    (failure) => Left(failure),
+    (data) {
+      final contentData = data['data'] as Map<String, dynamic>;
+      return Right(contentData);
+    },
+  );
+}
+
+
+
 
 Future<Either<Failure, Map<String, dynamic>>> submitDoctorRating({
   required int doctorId,
@@ -401,34 +392,6 @@ Future<Either<Failure, Map<String, dynamic>>> submitDoctorRating({
 }
 
 
-// Future<Either<Failure, List<dynamic>>> getGames() async {
-//     try {
-//       final prefs = await SharedPreferences.getInstance();
-//       final token = prefs.getString('user_token');
-
-//       if (token == null) {
-//         return Left(ServerFailure('Token غير موجود'));
-//       }
-
-//       final response = await dio.get(
-//         'https://tempweb90.com/azrobot/public/api/games',
-//         options: Options(
-//           headers: {
-//             'Accept': 'application/json',
-//             'Authorization': 'Bearer $token',
-//           },
-//         ),
-//       );
-
-//       if (response.statusCode == 200 && response.data is List) {
-//         return Right(response.data);
-//       } else {
-//         return Left(ServerFailure('خطأ في تحميل البيانات'));
-//       }
-//     } catch (e) {
-//       return Left(ServerFailure('حدث خطأ أثناء الاتصال بالخادم'));
-//     }
-//   }
   
 Future<Either<Failure, dynamic>> deleteAccount({required String password}) async {
   final result = await Api().delete(

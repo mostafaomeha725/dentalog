@@ -71,7 +71,7 @@ class ProfileView extends StatelessWidget {
                     buildSectionTitle("Others"),
                     SizedBox(height: itemSpacing),
                     _buildListTile(Icons.summarize_outlined, "Reports", onTap: () {
-                      GoRouter.of(context).push(AppRouter.kReportView);
+                      GoRouter.of(context).push(AppRouter.kHistoryView);
                     }),
                     SizedBox(height: dividerSpacing),
                     _buildDivider(),

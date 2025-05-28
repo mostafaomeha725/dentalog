@@ -79,18 +79,20 @@ class DoctorCard extends StatelessWidget {
                   user['phone'],
                   style: TextStyles.bold12w300.copyWith(color: Colors.grey),
                 ),
-                Row(
-                  children: List.generate(
-                    5,
-                    (index) => Icon(
-                      index < double.parse(doctor['average_rating']).round()
-                          ? Icons.star
-                          : Icons.star_border,
-                      color: Colors.amber,
-                      size: 16,
-                    ),
-                  ),
-                ),
+             Row(
+  children: List.generate(
+    5,
+    (index) => Icon(
+      index < (num.tryParse(doctor['average_rating'].toString())?.round() ?? 0)
+          ? Icons.star
+          : Icons.star_border,
+      color: Colors.amber,
+      size: 16,
+    ),
+  ),
+),
+
+
                 SizedBox(height: 6),
                 Align(
                   alignment: Alignment.centerRight,

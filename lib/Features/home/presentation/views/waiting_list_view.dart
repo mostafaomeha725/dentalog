@@ -1,15 +1,9 @@
-import 'package:dentalog/Features/home/presentation/views/widgets/appointment_view_body.dart';
-import 'package:flutter/material.dart';
+import 'package:dentalog/Features/home/presentation/views/widgets/waiting_list_view_body.dart';
 import 'package:dentalog/core/utiles/app_text_styles.dart';
+import 'package:flutter/material.dart';
 
-class AppointmentView extends StatelessWidget {
-  final int doctorId;
-
-  const AppointmentView({
-    super.key,
-    required this.doctorId,
-   
-  });
+class WaitingListView extends StatelessWidget {
+  const WaitingListView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,16 +14,14 @@ class AppointmentView extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-         "Book an Appointment",
+          "Waiting List",
           style: TextStyles.bold20w500,
         ),
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
       ),
-      body: AppointmentViewBody(
-        doctorId: doctorId,
-      ),
+      body: WaitingListViewBody(),
     );
   }
 }

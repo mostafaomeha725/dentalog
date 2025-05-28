@@ -5,32 +5,31 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:dentalog/core/utiles/app_text_styles.dart';
 import 'package:dentalog/core/widgets/Custom_buttom.dart';
 
-class AppointmentViewBody extends StatefulWidget {
+class RescheduleAppointmentViewBody extends StatefulWidget {
   final int doctorId;
+  final int appointmentId;
+  final bool isFromReschedule;
 
-  const AppointmentViewBody({
+  const RescheduleAppointmentViewBody({
     super.key,
     required this.doctorId,
-  
+    required this.appointmentId,
+    required this.isFromReschedule,
   });
 
   @override
-  _AppointmentViewBodyState createState() => _AppointmentViewBodyState();
+  _RescheduleAppointmentViewBodyState createState() =>
+      _RescheduleAppointmentViewBodyState();
 }
 
-class _AppointmentViewBodyState extends State<AppointmentViewBody> {
+class _RescheduleAppointmentViewBodyState
+    extends State<RescheduleAppointmentViewBody> {
   DateTime _selectedDate = DateTime.now();
   String? _selectedTime;
 
-  List<String> timeSlots = [
-    "8:00 AM",
-    "9:00 AM",
-    "10:00 AM",
-    "12:00 PM",
-    "2:00 PM",
-    "4:00 PM",
-    "6:00 PM",
-    "8:00 PM"
+  final List<String> timeSlots = [
+    "8:00 AM", "9:00 AM", "10:00 AM", "12:00 PM",
+    "2:00 PM", "4:00 PM", "6:00 PM", "8:00 PM"
   ];
 
   @override
@@ -41,9 +40,9 @@ class _AppointmentViewBodyState extends State<AppointmentViewBody> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text("Select Date", style: TextStyles.bold16w500),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -53,13 +52,13 @@ class _AppointmentViewBodyState extends State<AppointmentViewBody> {
                     color: Colors.black.withOpacity(0.15),
                     blurRadius: 6,
                     spreadRadius: 2,
-                    offset: Offset(0, 3),
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
               child: TableCalendar(
                 firstDay: DateTime.now(),
-                lastDay: DateTime.now().add(Duration(days: 365)),
+                lastDay: DateTime.now().add(const Duration(days: 365)),
                 focusedDay: _selectedDate,
                 selectedDayPredicate: (day) => isSameDay(_selectedDate, day),
                 onDaySelected: (selectedDay, focusedDay) {
@@ -68,27 +67,27 @@ class _AppointmentViewBodyState extends State<AppointmentViewBody> {
                   });
                 },
                 calendarStyle: CalendarStyle(
-                  todayDecoration: BoxDecoration(
+                  todayDecoration: const BoxDecoration(
                     color: Color(0xff134FA2),
                     shape: BoxShape.circle,
                   ),
-                  selectedDecoration: BoxDecoration(
+                  selectedDecoration: const BoxDecoration(
                     color: Color(0xff134FA2),
                     shape: BoxShape.circle,
                   ),
                 ),
-                headerStyle: HeaderStyle(
+                headerStyle: const HeaderStyle(
                   formatButtonVisible: false,
                   titleCentered: true,
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Text("Select Time", style: TextStyles.bold16w500),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Wrap(
-              spacing: 3,
-              runSpacing: 10,
+              spacing: 8,
+              runSpacing: 12,
               children: timeSlots.map((time) {
                 final isSelected = _selectedTime == time;
                 return GestureDetector(
@@ -100,64 +99,57 @@ class _AppointmentViewBodyState extends State<AppointmentViewBody> {
                   child: Container(
                     width: 100,
                     height: 40,
-                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                    alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: isSelected ? Color(0xff134FA2) : Colors.blue.shade100,
+                      color: isSelected ? const Color(0xff134FA2) : Colors.blue.shade100,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       time,
-                      style: isSelected
-                          ? TextStyles.bold13w500.copyWith(color: Colors.white)
-                          : TextStyles.bold13w500.copyWith(color: Color(0xff134FA2)),
+                      style: TextStyles.bold13w500.copyWith(
+                        color: isSelected ? Colors.white : const Color(0xff134FA2),
+                      ),
                     ),
                   ),
                 );
               }).toList(),
             ),
-            SizedBox(height: 60),
+            const SizedBox(height: 60),
             CustomButtom(
-  text: "Next",
-  onPressed: () {
-    if (_selectedTime != null) {
-      final formattedTime = _formatTime(_selectedTime!);
-      GoRouter.of(context).push(
-        AppRouter.kBookAppointmentView,
-        extra: {
-          'selectedDate': _selectedDate,
-          'selectedTime': formattedTime,
-          'DoctorId': widget.doctorId,
-        },
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Please select a time.")),
-      );
-    }
-  },
-  issized: true,
-),
-
+              text: "Next",
+              onPressed: () {
+                if (_selectedTime != null) {
+                  final formattedTime = _formatTime(_selectedTime!);
+                  context.pop({
+                    'selectedDate': _selectedDate,
+                    'selectedTime': formattedTime,
+                  });
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Please select a time.")),
+                  );
+                }
+              },
+              issized: true,
+            ),
           ],
         ),
       ),
     );
   }
 
-  // تحويل الوقت من AM/PM إلى 24 ساعة بصيغة HH:mm
- String _formatTime(String time12h) {
-  final parts = time12h.split(RegExp(r'[: ]'));
-  int hour = int.parse(parts[0]);
-  final minute = int.parse(parts[1]);
-  final period = parts[2];
+  String _formatTime(String time12h) {
+    final parts = time12h.split(RegExp(r'[: ]'));
+    int hour = int.parse(parts[0]);
+    final int minute = int.parse(parts[1]);
+    final String period = parts[2];
 
-  if (period == "PM" && hour != 12) hour += 12;
-  if (period == "AM" && hour == 12) hour = 0;
+    if (period == "PM" && hour != 12) hour += 12;
+    if (period == "AM" && hour == 12) hour = 0;
 
-  final hourStr = hour.toString().padLeft(2, '0');
-  final minuteStr = minute.toString().padLeft(2, '0');
+    final hourStr = hour.toString().padLeft(2, '0');
+    final minuteStr = minute.toString().padLeft(2, '0');
 
-  return '$hourStr:$minuteStr:00'; // <-- أضفنا الثواني هنا
-}
-
+    return '$hourStr:$minuteStr:00';
+  }
 }

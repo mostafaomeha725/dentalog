@@ -25,7 +25,14 @@ class _DoctorInfoViewBodyState extends State<DoctorInfoViewBody> {
     final doctorId = doctor['id'];
     final speciality = doctor['speciality'] ?? {};
     final schedules = doctor['schedules'] as List? ?? [];
-    final rating = double.tryParse(doctor['average_rating'] ?? '0') ?? 0.0;
+
+    // ✅ تعديل هنا لمعالجة نوع التقييم
+    final ratingValue = doctor['average_rating'];
+    final rating = ratingValue is String
+        ? double.tryParse(ratingValue) ?? 0.0
+        : ratingValue is num
+            ? ratingValue.toDouble()
+            : 0.0;
 
     return BlocConsumer<DoctorRatingCubit, DoctorRatingState>(
       listener: (context, state) {
@@ -104,7 +111,7 @@ class _DoctorInfoViewBodyState extends State<DoctorInfoViewBody> {
                                 children: List.generate(
                                   5,
                                   (index) => Icon(
-                                    index < rating.round()
+                                    index < rating.floor()
                                         ? Icons.star
                                         : Icons.star_border,
                                     color: Colors.amber,
@@ -140,11 +147,10 @@ class _DoctorInfoViewBodyState extends State<DoctorInfoViewBody> {
                     const SizedBox(height: 6),
 
                     ...schedules.map((s) {
-                      final start =
-                          DateTime.tryParse(s['start_time'] ?? '');
+                      final start = DateTime.tryParse(s['start_time'] ?? '');
                       final end = DateTime.tryParse(s['end_time'] ?? '');
                       final day = _dayOfWeekName(
-                          int.tryParse(s['day_of_week'] ?? '1') ?? 1);
+                          int.tryParse(s['day_of_week']?.toString() ?? '1') ?? 1);
                       final startTime =
                           start != null ? "${start.hour}:00" : '';
                       final endTime = end != null ? "${end.hour}:00" : '';
@@ -244,7 +250,8 @@ class _DoctorInfoViewBodyState extends State<DoctorInfoViewBody> {
                 child: CustomButtom(
                   text: "Book Now",
                   onPressed: () {
-                    GoRouter.of(context).push(AppRouter.kappointmentView,extra: doctorId);
+                    GoRouter.of(context)
+                        .push(AppRouter.kappointmentView, extra: doctorId);
                   },
                   issized: true,
                 ),

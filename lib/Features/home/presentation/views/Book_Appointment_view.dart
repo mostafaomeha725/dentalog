@@ -3,6 +3,7 @@ import 'package:dentalog/Features/home/presentation/views/widgets/Book_Appointme
 import 'package:dentalog/core/utiles/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class BookAppointmentView extends StatefulWidget {
   const BookAppointmentView({
@@ -28,7 +29,7 @@ class _BookAppointmentViewState extends State<BookAppointmentView> {
         appBar: AppBar(
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios, color: Color(0xff134FA2)),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => GoRouter.of(context).pop()
           ),
           title: Text(
             "Book an Appointment",

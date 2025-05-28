@@ -1,5 +1,7 @@
 import 'package:dentalog/Features/home/presentation/views/Appointment_tab_view.dart';
+import 'package:dentalog/Features/home/presentation/views/doctor_home_view.dart';
 import 'package:dentalog/Features/home/presentation/views/profile_view.dart';
+import 'package:dentalog/Features/home/presentation/views/waiting_list_view.dart';
 import 'package:dentalog/Features/home/presentation/views/widgets/home_view_body.dart';
 import 'package:dentalog/core/utiles/app_text_styles.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +23,7 @@ class _HomeViewState extends State<HomeView> {
   }
 
   final List<Widget> _pages = [
-    HomeViewBody(),
+    WaitingListView(),
     AppointmentTabView(),
     ProfileView(),
   ];
@@ -95,6 +97,7 @@ class _HomeViewState extends State<HomeView> {
                   label: "Home",
                 ),
                 BottomNavigationBarItem(
+                  
                   icon: Icon(Icons.calendar_today,
                       color: _selectedIndex == 1
                           ? Color(0xff134FA2)

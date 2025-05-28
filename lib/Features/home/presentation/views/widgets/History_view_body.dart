@@ -1,10 +1,12 @@
+import 'package:dentalog/Features/home/presentation/manager/cubit/show_history_cubit/showhistory_cubit.dart';
 import 'package:dentalog/Features/home/presentation/views/widgets/build_report_card.dart';
 import 'package:dentalog/core/utiles/app_images.dart';
 import 'package:dentalog/core/utiles/app_text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HistoryViewBody extends StatelessWidget {
-  const HistoryViewBody({super.key});
+  const   HistoryViewBody({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,35 +18,41 @@ class HistoryViewBody extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: ListView(
-              children: [
-                BuildReportCard(
-                  doctor: "Dr. Kareem Ahmed",
-                  title: "Report added for you",
-                  time: "23h",
-                  image: Assets.assetsDrKareem,
-                  isNew: true,
-                ),
-                SizedBox(
-                  height: 4,
-                ),
-                buildDivider(context),
-                SizedBox(
-                  height: 4,
-                ),
-                BuildReportCard(
-                  doctor: "Dr. Kareem Ahmed",
-                  title: "Report added for you",
-                  time: "23h",
-                  image: Assets.assetsDrKareem,
-                ),
-                BuildReportCard(
-                  doctor: "Dr. Kareem Ahmed",
-                  title: "Report added for you",
-                  time: "23h",
-                  image: Assets.assetsDrKareem,
-                ),
-              ],
+            child: BlocBuilder<ShowhistoryCubit, ShowhistoryState>(
+              builder: (context, state) {
+                if (state is ShowhistoryLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state is ShowhistoryFailure) {
+                  return Center(child: Text(state.errorMessage));
+                } else if (state is ShowhistorySuccess) {
+                  final reports = state.reportsData;
+
+                  return ListView.separated(
+                    itemCount: reports.length,
+                    separatorBuilder: (context, index) {
+                      if (reports[index]['is_new'] == true) {
+                        return buildDivider(screenWidth);
+                      }
+                      return const SizedBox(height: 8);
+                    },
+                    itemBuilder: (context, index) {
+                      final report = reports[index];
+                      return BuildReportCard(
+                        id: report['id'],
+                        doctor: report['doctor_name'] ?? 'Unknown Doctor',
+                        title: report['message'] ?? '',
+                        time: report['time_elapsed'] ?? '',
+                        image: Assets.assetsDrKareem, // يمكن ربطه ديناميكياً لاحقاً
+                        isNew: report['is_new'] ?? false,
+                      );
+                    },
+                  );
+                } else {
+                  // الحالة الابتدائية، تشغيل الكيوبت هنا:
+                  context.read<ShowhistoryCubit>().fetchHistory();
+                  return const Center(child: CircularProgressIndicator());
+                }
+              },
             ),
           ),
         ],
@@ -52,9 +60,7 @@ class HistoryViewBody extends StatelessWidget {
     );
   }
 
-  Widget buildDivider(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-
+  Widget buildDivider(double screenWidth) {
     return Row(
       children: [
         Expanded(
@@ -73,8 +79,8 @@ class HistoryViewBody extends StatelessWidget {
           child: Divider(
             color: Colors.grey,
             thickness: 1,
-            indent: screenWidth * 0.02, // 2% من عرض الشاشة
-            endIndent: screenWidth * 0.05, // 5% من عرض الشاشة
+            indent: screenWidth * 0.02,
+            endIndent: screenWidth * 0.05,
           ),
         ),
       ],

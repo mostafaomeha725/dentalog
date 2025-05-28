@@ -1,41 +1,47 @@
 import 'package:dentalog/core/utiles/app_text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class AppointmentCard extends StatelessWidget {
+  final int appointmentId;
+  final String doctorName;
+  final String phoneNumber;
+  final String image;
+  final DateTime dateTime;
+  final String status;
+  final bool iscompleted;
+  final VoidCallback? onReschedulePressed;
+
   const AppointmentCard({
     super.key,
+    required this.appointmentId,
     required this.doctorName,
     required this.phoneNumber,
     required this.image,
     required this.dateTime,
     required this.status,
     this.iscompleted = false,
+    this.onReschedulePressed,
   });
-  final String doctorName;
-  final String phoneNumber;
-  final String image;
-  final String dateTime;
-  final String status;
-  final bool iscompleted;
 
   @override
   Widget build(BuildContext context) {
+    final formattedDate = DateFormat.yMMMMd().format(dateTime);
+    final formattedTime = DateFormat.jm().format(dateTime);
+
     return Card(
-      color: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 8,
-      shadowColor: Colors.black.withOpacity(0.3),
+      color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-              child: CircleAvatar(
-                radius: 40,
-                backgroundImage: AssetImage(image),
-              ),
+            CircleAvatar(
+              radius: 40,
+              backgroundImage: image.isNotEmpty ? NetworkImage(image) : null,
+              child: image.isEmpty ? const Icon(Icons.person, size: 40) : null,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -45,50 +51,67 @@ class AppointmentCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(doctorName, style: TextStyles.bold16w600),
-                    SizedBox(height: 6),
-                    Text(phoneNumber,
-                        style: TextStyles.bold14w400Inter
-                            .copyWith(color: Colors.grey)),
+                    const SizedBox(height: 6),
+                    Text(
+                      phoneNumber,
+                      style: TextStyles.bold14w400Inter.copyWith(color: Colors.grey),
+                    ),
                     const SizedBox(height: 26),
                     Row(
                       children: [
-                        const Icon(Icons.calendar_month,
-                            size: 16, color: Color(0xff134FA2)),
+                        const Icon(Icons.calendar_month, size: 16, color: Color(0xff134FA2)),
                         const SizedBox(width: 6),
-                        Text(dateTime,
-                            style: TextStyles.bold12w500inter
-                                .copyWith(color: Color(0xff134FA2))),
+                        Text(
+                          formattedDate,
+                          style: TextStyles.bold12w500inter.copyWith(color: const Color(0xff134FA2)),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        const Icon(Icons.access_time,
-                            size: 16, color: Color(0xff134FA2)),
+                        const Icon(Icons.access_time, size: 16, color: Color(0xff134FA2)),
                         const SizedBox(width: 6),
-                        Text(status,
-                            style: TextStyles.bold12w500inter
-                                .copyWith(color: Color(0xff134FA2))),
+                        Text(
+                          formattedTime,
+                          style: TextStyles.bold12w500inter.copyWith(color: const Color(0xff134FA2)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(Icons.info_outline, size: 16, color: Color(0xff134FA2)),
+                        const SizedBox(width: 6),
+                        Text(
+                          status,
+                          style: TextStyles.bold12w500inter.copyWith(color: const Color(0xff134FA2)),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 6),
-                    iscompleted
-                        ? Container()
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              TextButton(
-                                  onPressed: () {},
-                                  child: Text("Reschedule",
-                                      style: TextStyles.bold12w500inter
-                                          .copyWith(color: Color(0xff134FA2)))),
-                              TextButton(
-                                  onPressed: () {},
-                                  child: Text("Cancel",
-                                      style: TextStyles.bold12w500inter
-                                          .copyWith(color: Color(0xff134FA2)))),
-                            ],
+                    if (!iscompleted)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          TextButton(
+                            onPressed: onReschedulePressed,
+                            child: Text(
+                              "Reschedule",
+                              style: TextStyles.bold12w500inter.copyWith(color: const Color(0xff134FA2)),
+                            ),
                           ),
+                          TextButton(
+                            onPressed: () {
+                              // TODO: Implement cancellation logic
+                            },
+                            child: Text(
+                              "Cancel",
+                              style: TextStyles.bold12w500inter.copyWith(color: const Color(0xff134FA2)),
+                            ),
+                          ),
+                        ],
+                      ),
                   ],
                 ),
               ),

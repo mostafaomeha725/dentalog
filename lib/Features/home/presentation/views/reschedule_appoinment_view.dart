@@ -1,14 +1,17 @@
-import 'package:dentalog/Features/home/presentation/views/widgets/appointment_view_body.dart';
 import 'package:flutter/material.dart';
 import 'package:dentalog/core/utiles/app_text_styles.dart';
+import 'package:dentalog/Features/home/presentation/views/widgets/reschedule_appointment_view_body.dart';
 
-class AppointmentView extends StatelessWidget {
+class RescheduleAppoinmentView extends StatelessWidget {
   final int doctorId;
+  final int appointmentId;
+  final bool isFromReschedule;
 
-  const AppointmentView({
+  const RescheduleAppoinmentView({
     super.key,
     required this.doctorId,
-   
+    required this.appointmentId,
+    required this.isFromReschedule,
   });
 
   @override
@@ -16,19 +19,21 @@ class AppointmentView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: Color(0xff134FA2)),
+          icon: const Icon(Icons.arrow_back_ios, color: Color(0xff134FA2)),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-         "Book an Appointment",
+          "Book an Appointment",
           style: TextStyles.bold20w500,
         ),
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
       ),
-      body: AppointmentViewBody(
+      body: RescheduleAppointmentViewBody(
         doctorId: doctorId,
+        appointmentId: appointmentId,
+        isFromReschedule: isFromReschedule,
       ),
     );
   }

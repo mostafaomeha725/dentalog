@@ -1,15 +1,18 @@
 import 'package:dentalog/Features/home/presentation/manager/cubit/book_appointment_cubit/book_appointment_cubit.dart';
+import 'package:dentalog/core/app_router/app_router.dart';
 import 'package:dentalog/core/utiles/app_text_styles.dart';
 import 'package:dentalog/core/widgets/Custom_buttom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 class BookAppointmentViewBody extends StatefulWidget {
   const BookAppointmentViewBody({
     super.key,
     required this.selectedDate,
-    required this.selectedTime, required this.doctorId,
+    required this.selectedTime, 
+    required this.doctorId,
   });
 
   final DateTime selectedDate;
@@ -39,7 +42,7 @@ class _BookAppointmentViewBodyState extends State<BookAppointmentViewBody> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("Appointment booked successfully")),
           );
-          Navigator.of(context).pop(); // يمكنك تعديل التنقل هنا إذا أردت
+        GoRouter.of(context).pushReplacement(AppRouter.kDoctorView);
         } else if (state is BookAppointmentFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.message)),

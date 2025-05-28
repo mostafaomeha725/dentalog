@@ -3,6 +3,8 @@ import 'package:dentalog/core/utiles/app_text_styles.dart';
 import 'package:flutter/material.dart';
 
 class DoctorsView extends StatefulWidget {
+  const DoctorsView({super.key});
+
   @override
   _DoctorsViewState createState() => _DoctorsViewState();
 }

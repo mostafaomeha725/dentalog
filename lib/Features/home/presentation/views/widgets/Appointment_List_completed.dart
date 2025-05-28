@@ -1,48 +1,44 @@
-import 'package:dentalog/Features/home/presentation/views/widgets/Appointment_card.dart';
-import 'package:dentalog/core/utiles/app_images.dart';
 import 'package:flutter/material.dart';
+import 'appointment_card.dart';
 
 class AppointmentListCompleted extends StatelessWidget {
-  const AppointmentListCompleted({super.key});
+  final List<dynamic> appointments;
+
+  const AppointmentListCompleted({super.key, required this.appointments});
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
+    return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
-      children: [
-        AppointmentCard(
-          doctorName: "Dr. Mohamed Ahmed",
-          phoneNumber: "01094059584",
-          image: Assets.assetsDrKareem,
-          dateTime: "10 Feb, 2:00 PM",
-          status: "Completed",
-          iscompleted: true,
-        ),
-        AppointmentCard(
-          doctorName: "Dr. Mohamed Ahmed",
-          phoneNumber: "01094059584",
-          image: Assets.assetsDrKareem,
-          dateTime: "10 Feb, 2:00 PM",
-          status: "Completed",
-          iscompleted: true,
-        ),
-        AppointmentCard(
-          doctorName: "Dr. Mohamed Ahmed",
-          phoneNumber: "01094059584",
-          image: Assets.assetsDrKareem,
-          dateTime: "10 Feb, 2:00 PM",
-          status: "Completed",
-          iscompleted: true,
-        ),
-        AppointmentCard(
-          doctorName: "Dr. Mohamed Ahmed",
-          phoneNumber: "01094059584",
-          image: Assets.assetsDrKareem,
-          dateTime: "10 Feb, 2:00 PM",
-          status: "Completed",
-          iscompleted: true,
-        ),
-      ],
+      itemCount: appointments.length,
+      itemBuilder: (context, index) {
+        final appointment = appointments[index];
+
+        final datePart = appointment['appointment_date']; // e.g. "2025-05-27T00:00:00.000000Z"
+        final timePart = appointment['appointment_time']; // e.g. "14:00"
+
+        final parsedDate = DateTime.parse(datePart);
+        final timeParts = timePart.split(':');
+        final hours = int.parse(timeParts[0]);
+        final minutes = int.parse(timeParts[1]);
+
+        final dateTime = DateTime(
+          parsedDate.year,
+          parsedDate.month,
+          parsedDate.day,
+          hours,
+          minutes,
+        );
+
+        return AppointmentCard(
+          doctorName: appointment['doctor']['user']['name'],
+          phoneNumber: appointment['doctor']['phone'],
+          image: appointment['doctor']['user']['image']??"",
+          dateTime: dateTime,
+          status: appointment['status'],
+          iscompleted: true, appointmentId: appointment['id'],
+        );
+      },
     );
   }
 }

@@ -18,6 +18,7 @@ import 'package:dentalog/Features/home/presentation/views/new_password_view.dart
 import 'package:dentalog/Features/home/presentation/views/patient_detailes_view.dart';
 import 'package:dentalog/Features/home/presentation/views/profile_view.dart';
 import 'package:dentalog/Features/home/presentation/views/report_view.dart';
+import 'package:dentalog/Features/home/presentation/views/reschedule_appoinment_view.dart';
 import 'package:dentalog/Features/home/presentation/views/write_report_view.dart';
 import 'package:dentalog/Features/on_boarding/on_boarding_one_view.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +39,8 @@ abstract class AppRouter {
   static const kDoctorInfoView = '/DoctorInfoView';
   static const kBookAppointmentView = '/BookAppointmentView';
   static const kappointmentView = '/appointmentView';
+    static const krescheduleappointmentView = '/rescheduleappointmentView';
+
   static const kProfileView = '/profileView';
   static const kEditprofileView = '/editprofileView';
   static const kNewPasswordView = '/NewPasswordView';
@@ -140,6 +143,20 @@ GoRoute(
 ),
 
 
+GoRoute(
+  path: AppRouter.krescheduleappointmentView,
+  pageBuilder: (context, state) {
+    final extra = state.extra as Map<String, dynamic>;
+    return MaterialPage(
+      child: RescheduleAppoinmentView(
+        doctorId: extra['doctorId'],
+        appointmentId: extra['appointmentId'],
+        isFromReschedule: extra['isFromReschedule'],
+      ),
+    );
+  },
+),
+
 
          GoRoute(
           path: kappointmentView,
@@ -175,9 +192,14 @@ GoRoute(
           path: kHistoryView,
           builder: (context, state) => HistoryView(),
         ),
-        GoRoute(
+       GoRoute(
           path: kReportView,
-          builder: (context, state) => ReportView(),
+          pageBuilder: (context, state) {
+            final id = state.extra as int;
+            return MaterialPage(
+              child: ReportView(id: id),
+            );
+          },
         ),
         GoRoute(
           path: kWriteReportView,
