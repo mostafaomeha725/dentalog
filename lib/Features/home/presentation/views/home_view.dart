@@ -1,4 +1,5 @@
 import 'package:dentalog/Features/home/presentation/views/Appointment_tab_view.dart';
+import 'package:dentalog/Features/home/presentation/views/doctor_Appointment_Tab_View.dart';
 import 'package:dentalog/Features/home/presentation/views/doctor_home_view.dart';
 import 'package:dentalog/Features/home/presentation/views/profile_view.dart';
 import 'package:dentalog/Features/home/presentation/views/waiting_list_view.dart';
@@ -24,7 +25,7 @@ class _HomeViewState extends State<HomeView> {
 
   final List<Widget> _pages = [
     WaitingListView(),
-    AppointmentTabView(),
+    DoctorAppointmentTabView(),
     ProfileView(),
   ];
 
