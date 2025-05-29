@@ -1,6 +1,4 @@
 
-
-
 import 'package:dartz/dartz.dart';
 import 'package:dentalog/Features/auth/data/models/sign_in_model.dart';
 import 'package:dentalog/Features/auth/data/models/sign_up_model.dart';
@@ -39,11 +37,14 @@ Future<Either<Failure, SignUpModel>> signUpUser({
       try {
         final dataContent = data['data']; // Extract the inner "data" object
         final userJson = dataContent['user'];
+                final role = dataContent['user']['role'];
+
         final token = dataContent['token'];
 
         final signUpModel = SignUpModel.fromJson(dataContent);
 
         final prefs = SharedPreference();
+        prefs.saveUser(role, role);
 
         if (userJson != null) {
           final userId = userJson['id'];
@@ -127,6 +128,80 @@ Future<Either<Failure, String>> otpVerify({
   );
 }
 
+
+Future<Either<Failure, String>> verifyResetpasswordCode({
+  required String phone,
+  required String code,
+}) async {
+  final result = await Api().post(
+    name: 'verify-reset-code', // يجب أن يتطابق مع اسم المسار في Api class
+    body: {
+      "phone": phone,
+      "code": code,
+    },
+    errMessage: "فشل التحقق من الكود",
+  );
+
+  return result.fold(
+    (failure) => Left(failure),
+    (data) {
+      final token = data['data']?['reset_token'];
+      if (token == null) {
+        return Left(Failure('لم يتم العثور على رمز إعادة التعيين'));
+      }
+      return Right(token);
+    },
+  );
+}
+
+Future<Either<Failure, Unit>> resetPassword({
+  required String phone,
+  required String token,
+  required String password,
+}) async {
+  final result = await Api().post(
+    name: 'reset-password',
+    body: {
+      "phone": phone,
+      "token": token,
+      "password": password,
+    },
+    errMessage: "فشل إعادة تعيين كلمة المرور",
+  );
+
+  return result.fold(
+    (failure) => Left(failure),
+    (_) => const Right(unit), // Use `unit` from dartz to indicate success without data
+  );
+}
+
+
+
+Future<Either<Failure, String>> forgetPassword({
+  required String phone,
+}) async {
+  final result = await Api().post(
+    name: "forgot-password", // تأكد من تطابقه مع المسار في الـ API
+    body: {
+      "phone": phone,
+    },
+    errMessage: "فشل في إرسال كود الاستعادة",
+  );
+
+  return result.fold(
+    (failure) => Left(failure),
+    (data) {
+      final code = data['data']?['reset_code'];
+      if (code != null) {
+        return Right(code.toString());
+      } else {
+        return Left(Failure("لم يتم استلام كود التحقق"));
+      }
+    },
+  );
+}
+
+
   Future<Either<Failure, String>> resetOtp({
   required String email,
 }) async {
@@ -178,6 +253,8 @@ Future<Either<Failure, Map<String, dynamic>>> getProfileData() async {
 
   return result;
 }
+
+
 Future<Either<Failure, Map<String, dynamic>>> editProfileUser({
   required String id,
   required String name,
@@ -366,6 +443,29 @@ Future<Either<Failure, Map<String, dynamic>>> rescheduleAppointmentRequest({
 
 
 
+  Future<Either<Failure, Map<String, dynamic>>> updateAppointmentStatusRequest({
+    required int appointmentId,
+    required String status, // expected values: 'waiting', 'completed', 'canceled'
+  }) async {
+    final response = await Api().patch(
+      name: 'appointments/$appointmentId/status',
+      withAuth: true,
+      body: {
+        'status': status,
+      },
+      errMessage: 'فشل في تحديث حالة الموعد',
+    );
+
+    return response.fold(
+      (failure) => Left(failure),
+      (data) {
+        final contentData = data['data'] as Map<String, dynamic>;
+        return Right(contentData);
+      },
+    );
+  }
+
+
 
 Future<Either<Failure, Map<String, dynamic>>> submitDoctorRating({
   required int doctorId,
@@ -392,7 +492,34 @@ Future<Either<Failure, Map<String, dynamic>>> submitDoctorRating({
 }
 
 
-  
+  Future<Either<Failure, Map<String, dynamic>>> submitReportByDoctor({
+  required int appointmentId,
+  required String diagnosis,
+  required String advice,
+  required List<Map<String, dynamic>> medicines,
+}) async {
+  final response = await Api().post(
+    name: 'appointments/$appointmentId/report',
+    withAuth: true,
+    body: {
+      'diagnosis': diagnosis,
+      'advice': advice,
+      'medicines': medicines,
+    },
+    errMessage: 'فشل في إنشاء التقرير',
+  );
+
+  return response.fold(
+    (failure) => Left(failure),
+    (data) {
+      final contentData = data['data'] as Map<String, dynamic>;
+      return Right(contentData);
+    },
+  );
+}
+
+
+
 Future<Either<Failure, dynamic>> deleteAccount({required String password}) async {
   final result = await Api().delete(
     name: "account/delete",

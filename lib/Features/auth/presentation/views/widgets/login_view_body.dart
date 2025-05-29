@@ -31,18 +31,44 @@ class _LoginViewBodyState extends State<LoginViewBody> {
     return BlocConsumer<SigninCubit, SignInState>(
       listener: (context, state) async {
         if (state is SignInSuccess) {
-                              final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(ApiKey.password, password!);
-                                                                // ignore: use_build_context_synchronously
-                                                                await context.read<ProfileCubit>().getProfile();
+          final prefs = await SharedPreferences.getInstance();
 
- ScaffoldMessenger.of(context).showSnackBar(
+          await prefs.setString(ApiKey.password, password!);
+
+          // جلب بيانات البروفايل
+          await context.read<ProfileCubit>().getProfile();
+
+          // الحصول على بيانات المستخدم من ProfileCubit
+          final profileState = context.read<ProfileCubit>().state;
+
+          String? role;
+
+          if (profileState is ProfileSuccess) {
+            // جلب الدور من بيانات المستخدم
+            role = profileState.profileData['user']['role'] as String?;
+
+            if (role != null) {
+              // تخزين الدور في SharedPreferences
+              await prefs.setString('role', role);
+            }
+          } else {
+            // لو لم يتوفر دور من البروفايل حاول تقراه من SharedPreferences
+            role = prefs.getString('role');
+          }
+
+          ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("تم تسجيل الدخول بنجاح")),
           );
-await Future.delayed(const Duration(milliseconds: 200));
-                    // ignore: use_build_context_synchronously
-                    GoRouter.of(context)
-                        .pushReplacement(AppRouter.kHomeView);
+          await Future.delayed(const Duration(milliseconds: 200));
+
+          // التنقل بناءً على الدور
+          if (role == 'doctor') {
+            GoRouter.of(context).pushReplacement(AppRouter.kDocrtorHomeView);
+          } else if (role == 'user') {
+            GoRouter.of(context).pushReplacement(AppRouter.kHomeView);
+          } else {
+            GoRouter.of(context).pushReplacement(AppRouter.kHomeView);
+          }
         } else if (state is SignInFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.errMessage)),
@@ -107,8 +133,6 @@ await Future.delayed(const Duration(milliseconds: 200));
                                     phone: phone!,
                                     password: password!,
                                   );
-
-
                             }
                           },
                           issized: true,
@@ -130,5 +154,3 @@ await Future.delayed(const Duration(milliseconds: 200));
     );
   }
 }
-
-

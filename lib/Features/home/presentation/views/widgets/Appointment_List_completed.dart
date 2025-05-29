@@ -1,4 +1,6 @@
+import 'package:dentalog/core/app_router/app_router.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'appointment_card.dart';
 
 class AppointmentListCompleted extends StatelessWidget {
@@ -90,14 +92,20 @@ class DoctorAppointmentListCompleted extends StatelessWidget {
         final phone = user?['phone'] ?? 'N/A';
         final image = user?['image'] ?? '';
 
-        return AppointmentCard(
-          appointmentId: appointment['id'],
-          doctorName: name,
-          phoneNumber: phone,
-          image: image,
-          dateTime: dateTime,
-          status: appointment['status'],
-          iscompleted: true,
+        return GestureDetector(
+          onTap: () {
+            GoRouter.of(context).push(AppRouter.kWriteReportView,extra: appointment['id']);
+          },
+          child: AppointmentCard(
+            appointmentId: appointment['id'],
+            doctorName: name,
+            phoneNumber: phone,
+            image: image,
+            dateTime: dateTime,
+            status: appointment['status'],
+            iscompleted: true,
+            
+          ),
         );
       },
     );

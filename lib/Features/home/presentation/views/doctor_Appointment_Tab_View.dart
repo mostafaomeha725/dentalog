@@ -7,7 +7,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'widgets/Appointment_List_completed.dart';
 import 'widgets/Appointment_list_waiting.dart';
-
 class DoctorAppointmentTabView extends StatefulWidget {
   const DoctorAppointmentTabView({super.key});
 
@@ -23,13 +22,26 @@ class _DoctorAppointmentTabViewState extends State<DoctorAppointmentTabView>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+
+    // جلب البيانات أول مرة
     context.read<ShowAppointmentsCubit>().fetchAppointments();
+
+    // إعادة جلب البيانات عند تغيير التاب
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) {
+        context.read<ShowAppointmentsCubit>().fetchAppointments();
+      }
+    });
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  Future<void> _onRefresh() async {
+    await context.read<ShowAppointmentsCubit>().fetchAppointments();
   }
 
   @override
@@ -54,46 +66,49 @@ class _DoctorAppointmentTabViewState extends State<DoctorAppointmentTabView>
             ),
           ),
           Expanded(
-            child: BlocConsumer<ShowAppointmentsCubit, ShowAppointmentsState>(
-              listener: (context, state) {},
-              builder: (context, state) {
-                if (state is ShowAppointmentsLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (state is ShowAppointmentsFailure) {
-                  return Center(child: Text(state.errorMessage));
-                } else if (state is ShowAppointmentsSuccess) {
-                  final appointments = state.appointmentsData;
+            child: RefreshIndicator(
+              onRefresh: _onRefresh,
+              child: BlocConsumer<ShowAppointmentsCubit, ShowAppointmentsState>(
+                listener: (context, state) {},
+                builder: (context, state) {
+                  if (state is ShowAppointmentsLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (state is ShowAppointmentsFailure) {
+                    return Center(child: Text(state.errorMessage));
+                  } else if (state is ShowAppointmentsSuccess) {
+                    final appointments = state.appointmentsData;
 
-                  // Debug: طباعة أنواع الحالات
-                  for (var a in appointments) {
-                    debugPrint("Status: ${a['status']}");
+                    // Debug: طباعة أنواع الحالات
+                    for (var a in appointments) {
+                      debugPrint("Status: ${a['status']}");
+                    }
+
+                    final upcoming = appointments
+                        .where((a) =>
+                            a['status'].toString().toLowerCase() == 'upcoming')
+                        .toList();
+                    final waiting = appointments
+                        .where((a) =>
+                            a['status'].toString().toLowerCase() == 'waiting')
+                        .toList();
+                    final completed = appointments
+                        .where((a) =>
+                            a['status'].toString().toLowerCase() == 'completed')
+                        .toList();
+
+                    return TabBarView(
+                      controller: _tabController,
+                      children: [
+                        DoctorAppointmentListUpcoming(initialAppointments: upcoming),
+                        DoctorAppointmentListWaiting(initialAppointments: waiting),
+                        DoctorAppointmentListCompleted(appointments: completed),
+                      ],
+                    );
+                  } else {
+                    return const SizedBox();
                   }
-
-                  final upcoming = appointments
-                      .where((a) =>
-                          a['status'].toString().toLowerCase() == 'upcoming')
-                      .toList();
-                  final waiting = appointments
-                      .where((a) =>
-                          a['status'].toString().toLowerCase() == 'waiting')
-                      .toList();
-                  final completed = appointments
-                      .where((a) =>
-                          a['status'].toString().toLowerCase() == 'completed')
-                      .toList();
-
-                  return TabBarView(
-                    controller: _tabController,
-                    children: [
-                     DoctorAppointmentListUpcoming(initialAppointments: upcoming),
-                      DoctorAppointmentListWaiting(initialAppointments: waiting),
-                      DoctorAppointmentListCompleted(appointments: completed),
-                    ],
-                  );
-                } else {
-                  return const SizedBox();
-                }
-              },
+                },
+              ),
             ),
           ),
         ],

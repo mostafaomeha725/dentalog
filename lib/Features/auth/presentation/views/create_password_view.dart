@@ -1,9 +1,19 @@
+import 'package:dentalog/Features/auth/presentation/manager/cubit/reset_password_cubit/resetpassword_cubit.dart';
 import 'package:dentalog/Features/auth/presentation/views/widgets/create_password_view_body.dart';
+import 'package:dentalog/core/services/api_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class CreatePasswordView extends StatelessWidget {
-  const CreatePasswordView({super.key});
+  const CreatePasswordView({
+    super.key,
+    required this.token,
+    required this.phone,
+  });
+
+  final String token;
+  final String phone;
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +30,13 @@ class CreatePasswordView extends StatelessWidget {
           ),
         ),
       ),
-      body: const CreatePasswordViewBody(),
+      body: BlocProvider(
+        create: (context) => ResetpasswordCubit(ApiService()),
+        child: CreatePasswordViewBody(
+          phone: phone,
+          token: token,
+        ),
+      ),
     );
   }
 }

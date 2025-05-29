@@ -1,10 +1,12 @@
+import 'package:dentalog/Features/home/presentation/manager/cubit/update_ppointment_status_cubit/updateappointmentstatus_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
 
-import 'appointment_card.dart';
-import 'package:dentalog/Features/home/presentation/views/widgets/appointment_view_body.dart';
 import 'package:dentalog/core/app_router/app_router.dart';
+
+import 'Appointment_card.dart';
 
 class AppointmentListUpcoming extends StatefulWidget {
   final List<dynamic> initialAppointments;
@@ -184,9 +186,19 @@ class _DoctorAppointmentListUpcomingState extends State<DoctorAppointmentListUpc
           phoneNumber: phone,
           image: image,
           dateTime: dateTime,
-          status: appointment['status'],
+          status: 'confirm',
           iscompleted: appointment['status'].toLowerCase() == 'completed',
           onReschedulePressed: () => _onReschedulePressed(index),
+          isdoctor: true,
+         onPressed: () {
+  final appointmentId = appointment['id'];
+  context.read<UpdateAppointmentStatusCubit>().updateStatus(
+    appointmentId: appointmentId,
+    status: 'Waiting',
+  );
+}
+
+          
         );
       },
     );

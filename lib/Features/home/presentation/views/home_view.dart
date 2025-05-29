@@ -24,8 +24,8 @@ class _HomeViewState extends State<HomeView> {
   }
 
   final List<Widget> _pages = [
-    WaitingListView(),
-    DoctorAppointmentTabView(),
+    HomeViewBody(),
+    AppointmentTabView(),
     ProfileView(),
   ];
 

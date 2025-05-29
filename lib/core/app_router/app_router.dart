@@ -5,10 +5,12 @@ import 'package:dentalog/Features/auth/presentation/views/create_password_view.d
 import 'package:dentalog/Features/auth/presentation/views/login_view.dart';
 import 'package:dentalog/Features/auth/presentation/views/sign_up_view.dart';
 import 'package:dentalog/Features/auth/presentation/views/type_user_view.dart';
+import 'package:dentalog/Features/auth/presentation/views/verification_code_password_view.dart';
 import 'package:dentalog/Features/auth/presentation/views/verification_code_view.dart';
 import 'package:dentalog/Features/home/presentation/views/Book_Appointment_view.dart';
 import 'package:dentalog/Features/home/presentation/views/Notification_view.dart';
 import 'package:dentalog/Features/home/presentation/views/appointment_view.dart';
+import 'package:dentalog/Features/home/presentation/views/doctor_home_view.dart';
 import 'package:dentalog/Features/home/presentation/views/doctor_info_view.dart';
 import 'package:dentalog/Features/home/presentation/views/doctor_view.dart';
 import 'package:dentalog/Features/home/presentation/views/edit_profile_view.dart';
@@ -33,8 +35,12 @@ abstract class AppRouter {
   static const kLoginView = '/LoginView';
   static const kForgetPasswordView = '/ForgetPasswordView';
   static const kVerificationCodeView = '/VerificationCodeView';
+    static const kVerificationpasswordCodeView = '/VerificationpasswordCodeView';
+
   static const kCreatePasswordView = '/CreatePasswordView';
   static const kHomeView = '/HomeView';
+    static const kDocrtorHomeView = '/DoctorHomeView';
+
   static const kDoctorView = '/DoctorView';
   static const kDoctorInfoView = '/DoctorInfoView';
   static const kBookAppointmentView = '/BookAppointmentView';
@@ -104,14 +110,39 @@ abstract class AppRouter {
     );
   },
 ),
-        GoRoute(
-          path: kCreatePasswordView,
-          builder: (context, state) => const CreatePasswordView(),
-        ),
+
+  GoRoute(
+  path: kVerificationpasswordCodeView,
+  builder: (context, state) {
+    final args = state.extra as OtpArguments;
+    return VerificationCodePasswordView(
+      phone: args.phone,
+
+    );
+  },
+),
+
+     GoRoute(
+  path: AppRouter.kCreatePasswordView,
+  builder: (context, state) {
+    final extra = state.extra as Map<String, dynamic>;
+    final String phone = extra['phone'];
+    final String token = extra['token'];
+
+    return CreatePasswordView(phone: phone, token: token);
+  },
+),
+
         GoRoute(
           path: kHomeView,
           builder: (context, state) => HomeView(),
         ),
+
+ GoRoute(
+          path: kDocrtorHomeView,
+          builder: (context, state) => DoctorHomeView(),
+        ),
+
         GoRoute(
           path: kDoctorView,
           builder: (context, state) => DoctorsView(),
@@ -201,9 +232,14 @@ GoRoute(
             );
           },
         ),
-        GoRoute(
+       GoRoute(
           path: kWriteReportView,
-          builder: (context, state) => WriteReportView(),
+          pageBuilder: (context, state) {
+            final id = state.extra as int;
+            return MaterialPage(
+              child: WriteReportView(id: id),
+            );
+          },
         ),
         GoRoute(
           path: kPatientDetailsView,

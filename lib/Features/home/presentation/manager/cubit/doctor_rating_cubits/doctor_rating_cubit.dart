@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:dentalog/core/services/api_service.dart';
 import 'package:equatable/equatable.dart';
 
+
 part 'doctor_rating_state.dart';
 
 class DoctorRatingCubit extends Cubit<DoctorRatingState> {

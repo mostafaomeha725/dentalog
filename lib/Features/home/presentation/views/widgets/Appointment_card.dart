@@ -11,6 +11,8 @@ class AppointmentCard extends StatelessWidget {
   final String status;
   final bool iscompleted;
   final VoidCallback? onReschedulePressed;
+  final bool isdoctor ;
+  final void Function()? onPressed ;
 
   const AppointmentCard({
     super.key,
@@ -22,6 +24,7 @@ class AppointmentCard extends StatelessWidget {
     required this.status,
     this.iscompleted = false,
     this.onReschedulePressed,
+    this.isdoctor = false, this.onPressed,
   });
 
   @override
@@ -65,21 +68,30 @@ class AppointmentCard extends StatelessWidget {
                           formattedDate,
                           style: TextStyles.bold12w500inter.copyWith(color: const Color(0xff134FA2)),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(Icons.access_time, size: 16, color: Color(0xff134FA2)),
-                        const SizedBox(width: 6),
-                        Text(
+                        SizedBox(width: 12,),
+                         Text(
                           formattedTime,
                           style: TextStyles.bold12w500inter.copyWith(color: const Color(0xff134FA2)),
                         ),
                       ],
                     ),
                     const SizedBox(height: 8),
-                    Row(
+                   
+                
+                isdoctor?   Align(
+              alignment: Alignment.centerLeft,
+              child: ElevatedButton(
+                onPressed: onPressed,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:Colors.blue.shade100,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                ),
+                child:  Text("Confirm",style: TextStyles.bold13w500.copyWith(color: Color(0xff134FA2)),),
+              ),
+            ) :Row(
                       children: [
                         const Icon(Icons.info_outline, size: 16, color: Color(0xff134FA2)),
                         const SizedBox(width: 6),
@@ -89,12 +101,11 @@ class AppointmentCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 6),
                     if (!iscompleted)
-                      Row(
+                     Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          TextButton(
+                        isdoctor? SizedBox(): TextButton(
                             onPressed: onReschedulePressed,
                             child: Text(
                               "Reschedule",
