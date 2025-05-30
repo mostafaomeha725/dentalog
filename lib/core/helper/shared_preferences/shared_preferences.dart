@@ -4,6 +4,15 @@ import 'package:dentalog/core/api/end_ponits.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPreference {
+Future<void> saveRole(String role) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('role', role);
+}
+
+Future<String?> getRole() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getString('role');
+}
 
 
   // Future<void> saveId(String id) async {

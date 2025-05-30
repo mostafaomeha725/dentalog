@@ -14,8 +14,8 @@ import 'package:dentalog/core/app_router/app_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginViewBody extends StatefulWidget {
-  const LoginViewBody({super.key});
-
+  const LoginViewBody({super.key, required this.type});
+final String type;
   @override
   State<LoginViewBody> createState() => _LoginViewBodyState();
 }
@@ -33,40 +33,34 @@ class _LoginViewBodyState extends State<LoginViewBody> {
         if (state is SignInSuccess) {
           final prefs = await SharedPreferences.getInstance();
 
+          // Save password
           await prefs.setString(ApiKey.password, password!);
 
-          // جلب بيانات البروفايل
+          // Fetch profile data (which saves the role in SharedPreferences)
+          // ignore: use_build_context_synchronously
           await context.read<ProfileCubit>().getProfile();
 
-          // الحصول على بيانات المستخدم من ProfileCubit
-          final profileState = context.read<ProfileCubit>().state;
+          // Get role from SharedPreferences
+          final role = prefs.getString("role") ?? "";
 
-          String? role;
+          // Confirm role read
+          debugPrint("Role from SharedPreferences: $role");
 
-          if (profileState is ProfileSuccess) {
-            // جلب الدور من بيانات المستخدم
-            role = profileState.profileData['user']['role'] as String?;
-
-            if (role != null) {
-              // تخزين الدور في SharedPreferences
-              await prefs.setString('role', role);
-            }
-          } else {
-            // لو لم يتوفر دور من البروفايل حاول تقراه من SharedPreferences
-            role = prefs.getString('role');
-          }
-
+          // ignore: use_build_context_synchronously
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("تم تسجيل الدخول بنجاح")),
+            const SnackBar(content: Text("Login successful")),
           );
+
           await Future.delayed(const Duration(milliseconds: 200));
 
-          // التنقل بناءً على الدور
-          if (role == 'doctor') {
+          if (role == "doctor") {
+            // ignore: use_build_context_synchronously
             GoRouter.of(context).pushReplacement(AppRouter.kDocrtorHomeView);
-          } else if (role == 'user') {
+          } else if (role == "user") {
+            // ignore: use_build_context_synchronously
             GoRouter.of(context).pushReplacement(AppRouter.kHomeView);
           } else {
+            // ignore: use_build_context_synchronously
             GoRouter.of(context).pushReplacement(AppRouter.kHomeView);
           }
         } else if (state is SignInFailure) {
@@ -99,25 +93,27 @@ class _LoginViewBodyState extends State<LoginViewBody> {
                     onSaved: (value) => phone = value,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return "رقم الهاتف مطلوب";
+                        return "Phone number is required";
                       } else if (!RegExp(r'^\d{9,15}$').hasMatch(value)) {
-                        return "يرجى إدخال رقم هاتف صحيح";
+                        return "Please enter a valid phone number";
                       }
                       return null;
                     },
-                    hint: "رقم الهاتف",
-                    prefixIcon: Icon(Icons.phone_iphone_outlined, color: Colors.grey[700]),
+                    hint: "Phone Number",
+                    prefixIcon:
+                        Icon(Icons.phone_iphone_outlined, color: Colors.grey[700]),
                   ),
                   const SizedBox(height: 16),
                   CustomTextField(
                     onSaved: (value) => password = value,
                     validator: (value) {
-                      if (value!.isEmpty) return "كلمة المرور مطلوبة";
+                      if (value!.isEmpty) return "Password is required";
                       return null;
                     },
-                    hint: "كلمة المرور",
+                    hint: "Password",
                     active: true,
-                    prefixIcon: Icon(Icons.lock_outline_rounded, color: Colors.grey[700]),
+                    prefixIcon:
+                        Icon(Icons.lock_outline_rounded, color: Colors.grey[700]),
                   ),
                   const SizedBox(height: 6),
                   const ForgetPasswordText(),
@@ -125,8 +121,8 @@ class _LoginViewBodyState extends State<LoginViewBody> {
                   state is SignInLoading
                       ? const CircularProgressIndicator()
                       : CustomButtom(
-                          text: "تسجيل الدخول",
-                          onPressed: () async {
+                          text: "Login",
+                          onPressed: () {
                             if (formKey.currentState!.validate()) {
                               formKey.currentState!.save();
                               context.read<SigninCubit>().signInUser(
@@ -139,10 +135,10 @@ class _LoginViewBodyState extends State<LoginViewBody> {
                         ),
                   const SizedBox(height: 48),
                   LoginText(
-                    text: "ليس لديك حساب؟ ",
-                    textClick: "سجل الآن",
+                    text: "Don't have an account? ",
+                    textClick: "Sign up now",
                     onTap: () {
-                      GoRouter.of(context).push(AppRouter.kSignUpView);
+                      GoRouter.of(context).push(AppRouter.kSignUpView,extra: widget.type);
                     },
                   ),
                 ],

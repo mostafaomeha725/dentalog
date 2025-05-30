@@ -19,30 +19,40 @@ class _SplashViewBodyState extends State<SplashViewBody> {
     super.initState();
     _navigateToNextScreen();
   }
+Future<void> _navigateToNextScreen() async {
+  final prefs = await SharedPreferences.getInstance();
+  bool isFirstTime = prefs.getBool('isFirstTime') ?? true;
 
-  Future<void> _navigateToNextScreen() async {
-    final prefs = await SharedPreferences.getInstance();
-    bool isFirstTime = prefs.getBool('isFirstTime') ?? true;
+  await Future.delayed(const Duration(seconds: 3));
 
-    await Future.delayed(const Duration(seconds: 3));
-
-    if (isFirstTime) {
-      await prefs.setBool('isFirstTime', false);
-      if (!mounted) return;
-      GoRouter.of(context).pushReplacement(AppRouter.kOnboardingView);
-      return;
-    }
-
-    String? token = await SharedPreference().getToken();
-
+  if (isFirstTime) {
+    await prefs.setBool('isFirstTime', false);
     if (!mounted) return;
+    GoRouter.of(context).pushReplacement(AppRouter.kOnboardingView);
+    return;
+  }
 
-    if (token == null) {
-      GoRouter.of(context).pushReplacement(AppRouter.kTypeUserView);
+  String? token = await SharedPreference().getToken();
+
+  if (!mounted) return;
+
+  if (token == null) {
+    GoRouter.of(context).pushReplacement(AppRouter.kTypeUserView);
+  } else {
+    // لو في توكن، نجيب الدور (role) من SharedPreferences
+    String role = prefs.getString('role') ?? '';
+
+    if (role == 'doctor') {
+      GoRouter.of(context).pushReplacement(AppRouter.kDocrtorHomeView);
+    } else if (role == 'user') {
+      GoRouter.of(context).pushReplacement(AppRouter.kHomeView);
     } else {
-      GoRouter.of(context).pushReplacement(AppRouter.kHomeView); // ✅ بدل kSplashView
+      // لو الدور مش معروف نوجه لصفحة اليوزر بشكل افتراضي
+      GoRouter.of(context).pushReplacement(AppRouter.kHomeView);
     }
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

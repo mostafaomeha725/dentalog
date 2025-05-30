@@ -1,6 +1,7 @@
 import 'package:dentalog/Features/auth/presentation/manager/cubit/profile_cubit/profile_cubit.dart';
 import 'package:dentalog/Features/auth/presentation/manager/cubit/sign_up_cubit/signup_cubit.dart';
 import 'package:dentalog/Features/auth/presentation/views/widgets/Login_Text.dart';
+import 'package:dentalog/Features/auth/presentation/views/widgets/drop_down_list.dart';
 import 'package:dentalog/core/app_router/app_router.dart';
 import 'package:dentalog/core/utiles/app_images.dart';
 import 'package:dentalog/core/utiles/app_text_styles.dart';
@@ -77,7 +78,18 @@ class _SignUpViewBodyState extends State<SignUpViewBody> {
                     },
                     prefixIcon: Icon(Icons.phone, color: Colors.grey[700]),
                   ),
-                  const SizedBox(height: 16),
+                     const SizedBox(height: 16),
+             Visibility(
+  visible: widget.type == 'doctor',
+  child: Column(
+    children: [
+      SpecialtiesDropdown(),
+      SizedBox(height: 16,)
+    ],
+  ),
+)
+,
+                  
                   CustomTextField(
                     hint: "Email",
                     onChanged: (value) => email = value,
@@ -92,7 +104,9 @@ class _SignUpViewBodyState extends State<SignUpViewBody> {
                     },
                     prefixIcon: Icon(Icons.email, color: Colors.grey[700]),
                   ),
-                  const SizedBox(height: 16),
+               
+                                    const SizedBox(height: 16),
+
                   CustomTextField(
                     hint: "Password",
                     active: true,
@@ -129,7 +143,7 @@ class _SignUpViewBodyState extends State<SignUpViewBody> {
                     text: "Already have an account?  ",
                     textClick: "LogIn",
                     onTap: () =>
-                        GoRouter.of(context).push(AppRouter.kLoginView),
+                        GoRouter.of(context).push(AppRouter.kLoginView,extra: widget.type),
                   ),
                 ],
               ),

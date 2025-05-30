@@ -1,4 +1,4 @@
-import 'package:dentalog/Features/auth/presentation/manager/cubit/reset_password_cubit/resetpassword_cubit.dart';
+import 'package:dentalog/Features/auth/presentation/manager/cubit/cubit/resetpassword_cubit.dart';
 import 'package:dentalog/Features/auth/presentation/views/widgets/create_password_view_body.dart';
 import 'package:dentalog/core/services/api_service.dart';
 import 'package:flutter/material.dart';

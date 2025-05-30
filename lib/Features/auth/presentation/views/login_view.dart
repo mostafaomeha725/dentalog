@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginView extends StatelessWidget {
-  const LoginView({super.key});
-
+  const LoginView({super.key, required this.type});
+final String type ;
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -18,7 +18,7 @@ class LoginView extends StatelessWidget {
       SharedPreference(),
       ),
       child: Scaffold(
-        body: LoginViewBody(),
+        body: LoginViewBody(type:type),
       ),
     );
   }

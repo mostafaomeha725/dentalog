@@ -93,13 +93,4 @@ class HomeViewBody extends StatelessWidget {
   }
 }
 
-List<Map<String, String>> specialities = [
-  {"name": "Ophthalmology", "icon": Assets.assetsOphthalmology},
-  {"name": "Dentist", "icon": Assets.assetsDentist},
-  {"name": "Gastroenterology", "icon": Assets.assetsGastroenterology},
-  {"name": "Neurology", "icon": Assets.assetsNeurology},
-  {"name": "Radiography", "icon": Assets.assetsRadiography},
-  {"name": "Nutrition", "icon": Assets.assetsNutrition},
-  {"name": "Dermatology", "icon": Assets.assetsDermatology},
-  {"name": "More", "icon": Assets.assetsMore},
-];
+

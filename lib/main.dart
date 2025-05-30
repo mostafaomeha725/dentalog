@@ -1,5 +1,6 @@
 import 'package:dentalog/Features/auth/presentation/manager/cubit/profile_cubit/profile_cubit.dart';
 import 'package:dentalog/Features/home/presentation/manager/cubit/show_Appointments_cubit/show_appointments_cubit.dart';
+import 'package:dentalog/Features/home/presentation/manager/cubit/show_Specialties_by_id_cubit/show_specialtiesbyid_cubit.dart';
 import 'package:dentalog/Features/home/presentation/manager/cubit/show_doctor_cubit/showdoctor_cubit.dart';
 import 'package:dentalog/Features/home/presentation/manager/cubit/show_specialties_cubit/show_specialties_cubit.dart';
 import 'package:dentalog/Features/home/presentation/manager/cubit/update_ppointment_status_cubit/updateappointmentstatus_cubit.dart';
@@ -38,6 +39,9 @@ runApp(
          BlocProvider<UpdateAppointmentStatusCubit>(
           create: (context) => UpdateAppointmentStatusCubit(),
         ),
+          BlocProvider<ShowSpecialtiesbyidCubit>(
+          create: (context) => ShowSpecialtiesbyidCubit(ApiService()),
+        ),
 
       ],
       child: DentalogApp(), 
@@ -52,7 +56,7 @@ class DentalogApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       theme: ThemeData.light().copyWith(scaffoldBackgroundColor: Colors.white),
-      routerConfig: AppRouter.getRouter(AppRouter.kTypeUserView ),
+      routerConfig: AppRouter.getRouter(AppRouter.kSplashView ),
       debugShowCheckedModeBanner: false,
       // ignore: deprecated_member_use
       useInheritedMediaQuery: true,

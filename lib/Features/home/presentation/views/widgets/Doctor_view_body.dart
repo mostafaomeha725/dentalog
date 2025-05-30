@@ -1,6 +1,8 @@
+import 'package:dentalog/Features/home/presentation/manager/cubit/show_Specialties_by_id_cubit/show_specialtiesbyid_cubit.dart';
 import 'package:dentalog/Features/home/presentation/manager/cubit/show_doctor_cubit/showdoctor_cubit.dart';
+import 'package:dentalog/Features/home/presentation/views/show_specialties_doctor_view.dart';
 import 'package:dentalog/Features/home/presentation/views/widgets/Doctor_card.dart';
-import 'package:dentalog/Features/home/presentation/views/widgets/list_doctor_card.dart';
+import 'package:dentalog/Features/home/presentation/views/widgets/show_specialties_doctor_view_body.dart';
 import 'package:dentalog/core/utiles/app_text_styles.dart';
 import 'package:dentalog/core/api/end_ponits.dart';
 import 'package:dentalog/Features/home/presentation/manager/cubit/show_specialties_cubit/show_specialties_cubit.dart';
@@ -20,7 +22,8 @@ class _DoctorViewBodyState extends State<DoctorViewBody> {
   @override
   void initState() {
     super.initState();
-    context.read<ShowSpecialtiesCubit>().showSpecialties(); // جلب البيانات عند فتح الشاشة
+    context.read<ShowSpecialtiesCubit>().showSpecialties();
+    context.read<ShowdoctorCubit>().fetchDoctors(); // إحضار كل الأطباء مبدئياً
   }
 
   @override
@@ -34,7 +37,6 @@ class _DoctorViewBodyState extends State<DoctorViewBody> {
           Text("Departments", style: TextStyles.bold18w500),
           const SizedBox(height: 32),
 
-          // BlocConsumer لعرض التخصصات
           BlocConsumer<ShowSpecialtiesCubit, ShowSpecialtiesState>(
             listener: (context, state) {
               if (state is ShowSpecialtiesFailure) {
@@ -53,18 +55,51 @@ class _DoctorViewBodyState extends State<DoctorViewBody> {
                   height: 80,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: specialties.length,
+                    itemCount: specialties.length + 1,
                     itemBuilder: (context, index) {
-                      final item = specialties[index];
                       final bool isSelected = selectedIndex == index;
 
+                      // خانة All
+                      if (index == 0) {
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              selectedIndex = 0;
+                            });
+                            context.read<ShowdoctorCubit>().fetchDoctors();
+                          },
+                          child: Container(
+                            width: 70,
+                            height: 80,
+                            margin: const EdgeInsets.only(right: 16),
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            decoration: BoxDecoration(
+                              color: isSelected ? const Color(0xff134FA2) : Colors.blue[50],
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "All",
+                                textAlign: TextAlign.center,
+                                style: TextStyles.bold18w600.copyWith(
+                                  color: isSelected ? Colors.white : Colors.black,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+
+                      final item = specialties[index - 1];
                       return GestureDetector(
                         onTap: () {
                           setState(() {
                             selectedIndex = index;
                           });
-
-                        
+                          context
+                              .read<ShowSpecialtiesbyidCubit>()
+                              .getSpecialtiesById(index+1);
                         },
                         child: Container(
                           width: 70,
@@ -105,17 +140,33 @@ class _DoctorViewBodyState extends State<DoctorViewBody> {
           ),
 
           const SizedBox(height: 30),
-          Text("All Doctors",
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text("All Doctors", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 10),
 
-       DoctorListView(),
-
+          // BlocConsumer لعرض الأطباء حسب التخصص أو الكل
+          selectedIndex == 0
+              ? BlocBuilder<ShowdoctorCubit, ShowdoctorState>(
+                  builder: (context, state) {
+                    if (state is ShowdoctorLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (state is ShowdoctorSuccess) {
+                      final doctors = state.doctorsData;
+                      return DoctorListView();
+                    } else if (state is ShowdoctorFailure) {
+                      return Center(child: Text("فشل في جلب الأطباء: ${state.errorMessage}"));
+                    } else {
+                      return const SizedBox.shrink();
+                    }
+                  },
+                )
+              : Expanded(
+                child: ShowSpecialtiesDoctorViewBody(id:3, name: 'name'))
         ],
       ),
     );
   }
 }
+
 
 class DoctorListView extends StatelessWidget {
   const DoctorListView({super.key});

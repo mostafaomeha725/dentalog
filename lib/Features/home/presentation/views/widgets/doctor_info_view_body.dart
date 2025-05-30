@@ -24,10 +24,16 @@ class _DoctorInfoViewBodyState extends State<DoctorInfoViewBody> {
     final user = doctor['user'] ?? {};
     final doctorId = doctor['id'];
     final speciality = doctor['speciality'] ?? {};
+
+    // fallback data from flat doctor map if nested data null
+    final name = user['name'] ?? doctor['name'] ?? 'Unknown';
+    final phone = user['phone'] ?? doctor['phone'] ?? 'N/A';
+    final image = user['image'] ?? doctor['image'];
+    final specialityName = speciality['name'] ?? doctor['speciality_name'] ?? 'Speciality';
+    final experience = doctor['experience'] ?? 0;
+    final ratingValue = doctor['average_rating'];
     final schedules = doctor['schedules'] as List? ?? [];
 
-    // ✅ تعديل هنا لمعالجة نوع التقييم
-    final ratingValue = doctor['average_rating'];
     final rating = ratingValue is String
         ? double.tryParse(ratingValue) ?? 0.0
         : ratingValue is num
@@ -38,7 +44,7 @@ class _DoctorInfoViewBodyState extends State<DoctorInfoViewBody> {
       listener: (context, state) {
         if (state is DoctorRatingSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Rating submitted successfully')),
+            const SnackBar(content: Text('Rating submitted successfully')),
           );
           _reviewController.clear();
           setState(() => _selectedRating = 0);
@@ -76,14 +82,16 @@ class _DoctorInfoViewBodyState extends State<DoctorInfoViewBody> {
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(8),
-                          child: Image.network(
-                            'https://your-base-url.com/${user['image'] ?? ''}',
-                            width: 92,
-                            height: 87,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                const Icon(Icons.image_not_supported),
-                          ),
+                          child: image != null
+                              ? Image.network(
+                                  'https://your-base-url.com/$image',
+                                  width: 92,
+                                  height: 87,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      const Icon(Icons.image_not_supported),
+                                )
+                              : const Icon(Icons.image_not_supported, size: 87),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -91,17 +99,17 @@ class _DoctorInfoViewBodyState extends State<DoctorInfoViewBody> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Dr. ${user['name'] ?? ''}",
+                                "Dr. $name",
                                 style: TextStyles.bold18w600,
                               ),
                               Text(
-                                speciality['name'] ?? '',
+                                specialityName,
                                 style: TextStyles.bold13w400.copyWith(
                                   color: const Color(0xff134FA2),
                                 ),
                               ),
                               Text(
-                                '${doctor['experience'] ?? 0} Years experience',
+                                '$experience Years experience',
                                 style: TextStyles.bold12w300.copyWith(
                                   color: Colors.grey,
                                 ),
@@ -129,7 +137,7 @@ class _DoctorInfoViewBodyState extends State<DoctorInfoViewBody> {
 
                     // Phone Number
                     Text(
-                      user['phone'] ?? '',
+                      phone,
                       style: TextStyles.bold18w500.copyWith(
                         color: const Color(0xff134FA2),
                       ),

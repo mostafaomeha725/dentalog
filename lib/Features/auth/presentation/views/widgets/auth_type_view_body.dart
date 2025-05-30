@@ -48,7 +48,7 @@ final String type ;
                   text: "Login",
                   issized: true,
                   onPressed: () {
-                    GoRouter.of(context).push(AppRouter.kLoginView);
+                    GoRouter.of(context).push(AppRouter.kLoginView,extra: type);
                   }),
               SizedBox(
                 height: 12,

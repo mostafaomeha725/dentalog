@@ -21,6 +21,7 @@ import 'package:dentalog/Features/home/presentation/views/patient_detailes_view.
 import 'package:dentalog/Features/home/presentation/views/profile_view.dart';
 import 'package:dentalog/Features/home/presentation/views/report_view.dart';
 import 'package:dentalog/Features/home/presentation/views/reschedule_appoinment_view.dart';
+import 'package:dentalog/Features/home/presentation/views/show_specialties_doctor_view.dart';
 import 'package:dentalog/Features/home/presentation/views/write_report_view.dart';
 import 'package:dentalog/Features/on_boarding/on_boarding_one_view.dart';
 import 'package:flutter/material.dart';
@@ -42,6 +43,8 @@ abstract class AppRouter {
     static const kDocrtorHomeView = '/DoctorHomeView';
 
   static const kDoctorView = '/DoctorView';
+    static const kShowSpecialtiesDoctorView = '/ShowSpecialtiesDoctorView';
+
   static const kDoctorInfoView = '/DoctorInfoView';
   static const kBookAppointmentView = '/BookAppointmentView';
   static const kappointmentView = '/appointmentView';
@@ -93,7 +96,12 @@ abstract class AppRouter {
         ),
         GoRoute(
           path: kLoginView,
-          builder: (context, state) => const LoginView(),
+          pageBuilder: (context, state) {
+            final type = state.extra as String;
+            return MaterialPage(
+              child: LoginView(type: type),
+            );
+          },
         ),
         GoRoute(
           path: kForgetPasswordView,
@@ -202,6 +210,19 @@ GoRoute(
           path: kProfileView,
           builder: (context, state) => ProfileView(),
         ),
+        GoRoute(
+  path: kShowSpecialtiesDoctorView,
+  pageBuilder: (context, state) {
+    final data = state.extra as Map;
+    final id = data['id'] as int;
+    final name = data['name'] as String;
+
+    return MaterialPage(
+      child: ShowSpecialtiesDoctorView(id: id, name: name),
+    );
+  },
+),
+
         GoRoute(
           path: kEditprofileView,
           pageBuilder: (context, state) {

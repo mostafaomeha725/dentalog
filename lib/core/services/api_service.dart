@@ -2,6 +2,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:dentalog/Features/auth/data/models/sign_in_model.dart';
 import 'package:dentalog/Features/auth/data/models/sign_up_model.dart';
+import 'package:dentalog/Features/home/presentation/manager/cubit/show_specialties_cubit/show_specialties_cubit.dart';
 import 'package:dentalog/core/api/Api.dart';
 import 'package:dentalog/core/api/end_ponits.dart';
 import 'package:dentalog/core/errors/exceptions.dart';
@@ -64,7 +65,6 @@ Future<Either<Failure, SignUpModel>> signUpUser({
     },
   );
 }
-
 Future<Either<Failure, SignInModel>> signInUser({
   required String phone,
   required String password,
@@ -88,14 +88,19 @@ Future<Either<Failure, SignInModel>> signInUser({
         final token = data['data']['token'];
 
         await prefs.saveToken(token);
+
         final userId = userData['id'];
+        final role = userData['role']; // ← استخراج الدور
+
         if (userId != null) {
           await prefs.saveUser(ApiKey.id, userId.toString());
         }
 
-        // ✅ هنا صححنا تمرير الـ data
-        final signInModel = SignInModel.fromJson(data);
+        if (role != null) {
+          await prefs.saveUser("role", role); // ← حفظ الدور في SharedPreferences
+        }
 
+        final signInModel = SignInModel.fromJson(data);
         return Right(signInModel);
       } catch (e) {
         return Left(Failure("خطأ أثناء حفظ بيانات المستخدم"));
@@ -103,6 +108,7 @@ Future<Either<Failure, SignInModel>> signInUser({
     },
   );
 }
+
 
 
 
@@ -325,6 +331,15 @@ Future<Either<Failure, Map<String, dynamic>>> showSpecialties() async {
     final response = await Api().get(
       name: "doctors",
       errMessage: "Failed to get doctors ",
+    );
+
+    return response; // Already Either<Failure, Map<String, dynamic>>
+  }
+
+   Future<Either<Failure, Map<String, dynamic>>> showSpecialtiesbyid(int id) async {
+    final response = await Api().get(
+      name: "specialities/$id/doctors",
+      errMessage: "Failed to get Specialties",
     );
 
     return response; // Already Either<Failure, Map<String, dynamic>>

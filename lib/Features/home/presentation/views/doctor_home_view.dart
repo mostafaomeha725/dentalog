@@ -1,5 +1,6 @@
 import 'package:dentalog/Features/home/presentation/views/doctor_Appointment_Tab_View.dart';
 import 'package:dentalog/Features/home/presentation/views/profile_view.dart';
+import 'package:dentalog/Features/home/presentation/views/widgets/doctor_home_view_body.dart';
 
 import 'package:dentalog/core/utiles/app_text_styles.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,7 @@ class _DoctorHomeViewState extends State<DoctorHomeView> {
   }
 
   final List<Widget> _pages = [
-    DoctorHomeView(),
+    DoctorHomeViewBody(),
     DoctorAppointmentTabView(),
     ProfileView(),
   ];

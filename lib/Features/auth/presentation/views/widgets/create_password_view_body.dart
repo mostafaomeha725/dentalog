@@ -1,4 +1,4 @@
-import 'package:dentalog/Features/auth/presentation/manager/cubit/reset_password_cubit/resetpassword_cubit.dart';
+import 'package:dentalog/Features/auth/presentation/manager/cubit/cubit/resetpassword_cubit.dart';
 import 'package:dentalog/core/app_router/app_router.dart';
 import 'package:dentalog/core/utiles/app_text_styles.dart';
 import 'package:dentalog/core/widgets/Custom_Text_field.dart';

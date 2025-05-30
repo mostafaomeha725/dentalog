@@ -1,4 +1,4 @@
-import 'package:dentalog/Features/home/presentation/manager/cubit/cubit/rebortcreationbydoctor_cubit.dart';
+import 'package:dentalog/Features/home/presentation/manager/cubit/rebort_creation_by_doctor_cubit/rebortcreationbydoctor_cubit.dart';
 import 'package:dentalog/Features/home/presentation/views/widgets/write_report_view_body.dart';
 import 'package:dentalog/core/utiles/app_text_styles.dart';
 import 'package:flutter/material.dart';

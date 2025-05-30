@@ -10,13 +10,30 @@ class DoctorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = doctor['user'];
-    final speciality = doctor['speciality'];
-    final imageUrl = 'https://your-base-url.com/${user['image']}'; // Replace base url
+    // بيانات user التفصيلية لو موجودة
+    final user = doctor['user'] ?? {};
+    final speciality = doctor['speciality'] ?? {};
+
+    // fallback بيانات doctor المبسطة
+    final name = user['name'] ?? doctor['name'] ?? 'Unknown';
+    final phone = user['phone'] ?? doctor['phone'] ?? 'N/A';
+    final specialityName = speciality['name'] ?? doctor['speciality_name'] ?? 'Speciality';
+    final imageUrl = (user['image'] ?? doctor['image']) != null
+        ? 'https://your-base-url.com/${user['image'] ?? doctor['image']}'
+        : null;
+
+    final schedules = doctor['schedules'] ?? [];
+    final rating = num.tryParse(doctor['average_rating']?.toString() ?? '')?.round() ?? 0;
+
+    // دالة للحصول على الوقت بشكل آمن
+    String getFormattedTime(Map schedule) {
+      final startTime = schedule['start_time']?.toString() ?? '';
+      return startTime.length >= 16 ? startTime.substring(11, 16) : 'N/A';
+    }
 
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 8),
-      padding: EdgeInsets.all(12),
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -25,86 +42,82 @@ class DoctorCard extends StatelessWidget {
             color: Colors.grey.withOpacity(0.2),
             blurRadius: 6,
             spreadRadius: 2,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image and Availability
+          // صورة الطبيب والتوافر
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  imageUrl,
-                  width: 92,
-                  height: 85,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) =>
-                      Icon(Icons.person, size: 85),
-                ),
+                child: imageUrl != null
+                    ? Image.network(
+                        imageUrl,
+                        width: 92,
+                        height: 85,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Icon(Icons.person, size: 85),
+                      )
+                    : const Icon(Icons.person, size: 85),
               ),
-              SizedBox(height: 6),
+              const SizedBox(height: 6),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text("Next Available",
-                      style: TextStyles.bold13w500.copyWith(color: Color(0xff134FA2))),
+                      style: TextStyles.bold13w500.copyWith(color: const Color(0xff134FA2))),
                   Text(
-                    doctor['schedules'] != null && doctor['schedules'].isNotEmpty
-                        ? doctor['schedules'][0]['start_time'].toString().substring(11, 16)
-                        : 'N/A',
+                    schedules.isNotEmpty ? getFormattedTime(schedules[0]) : 'N/A',
                     style: TextStyles.bold12w500.copyWith(color: Colors.grey),
                   ),
                 ],
               ),
             ],
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
 
-          // Doctor Info
+          // معلومات الطبيب
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(user['name'], style: TextStyles.bold18w500),
+                Text(name, style: TextStyles.bold18w500),
                 Text(
-                  speciality['name'],
-                  style: TextStyles.bold13w400.copyWith(color: Color(0xff134FA2)),
+                  specialityName,
+                  style: TextStyles.bold13w400.copyWith(color: const Color(0xff134FA2)),
                 ),
                 Text(
-                  user['phone'],
+                  phone,
                   style: TextStyles.bold12w300.copyWith(color: Colors.grey),
                 ),
-             Row(
-  children: List.generate(
-    5,
-    (index) => Icon(
-      index < (num.tryParse(doctor['average_rating'].toString())?.round() ?? 0)
-          ? Icons.star
-          : Icons.star_border,
-      color: Colors.amber,
-      size: 16,
-    ),
-  ),
-),
-
-
-                SizedBox(height: 6),
+                Row(
+                  children: List.generate(
+                    5,
+                    (index) => Icon(
+                      index < rating ? Icons.star : Icons.star_border,
+                      color: Colors.amber,
+                      size: 16,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 6),
                 Align(
                   alignment: Alignment.centerRight,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xff134FA2),
+                      backgroundColor: const Color(0xff134FA2),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
                     onPressed: () {
-                      GoRouter.of(context).push(AppRouter.kDoctorInfoView,extra: doctor);
+                      GoRouter.of(context).push(AppRouter.kDoctorInfoView, extra: doctor);
                     },
                     child: Text(
                       "Book Now",

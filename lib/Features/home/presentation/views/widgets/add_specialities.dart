@@ -1,7 +1,9 @@
 import 'package:dentalog/core/api/end_ponits.dart';
+import 'package:dentalog/core/app_router/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dentalog/Features/home/presentation/manager/cubit/show_specialties_cubit/show_specialties_cubit.dart';
+import 'package:go_router/go_router.dart';
 
 class AddSpecialities extends StatelessWidget {
   const AddSpecialities({super.key});
@@ -32,25 +34,38 @@ class AddSpecialities extends StatelessWidget {
             ),
             itemBuilder: (context, index) {
               final item = specialties[index];
-              return Column(
-                children: [
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Colors.blue[50],
-                    child: Image.network(
-                      item["icon"] ?? '',
-                      height: 30,
-                      errorBuilder: (context, error, stackTrace) =>
-                          const Icon(Icons.broken_image),
+              return GestureDetector(
+                onTap: () {
+                              GoRouter.of(context).push(
+  AppRouter.kShowSpecialtiesDoctorView,
+  extra: {
+    'id': index + 2,
+    'name': item['name'],
+  },
+);
+
+
+                },
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      radius: 30,
+                      backgroundColor: Colors.blue[50],
+                      child: Image.network(
+                        item["icon"] ?? '',
+                        height: 30,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Icon(Icons.broken_image),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    item["name"] ?? '',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600),
-                  ),
-                ],
+                    const SizedBox(height: 5),
+                    Text(
+                      item["name"] ?? '',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
               );
             },
           );
