@@ -9,11 +9,13 @@ class CreatePasswordView extends StatelessWidget {
   const CreatePasswordView({
     super.key,
     required this.token,
-    required this.phone,
+    required this.phone, required this.type,
   });
 
   final String token;
   final String phone;
+    final String type;
+
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +37,7 @@ class CreatePasswordView extends StatelessWidget {
         child: CreatePasswordViewBody(
           phone: phone,
           token: token,
+          type:type,
         ),
       ),
     );

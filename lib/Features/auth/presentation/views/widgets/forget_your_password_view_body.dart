@@ -9,8 +9,8 @@ import 'package:go_router/go_router.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 class ForgetYourPasswordViewBody extends StatefulWidget {
-  const ForgetYourPasswordViewBody({super.key});
-
+  const ForgetYourPasswordViewBody({super.key, required this.type});
+final String type ;
   @override
   State<ForgetYourPasswordViewBody> createState() =>
       _ForgetYourPasswordViewBodyState();
@@ -30,7 +30,7 @@ class _ForgetYourPasswordViewBodyState
           );
          
         } else if (state is ForgetpasswordSuccess) {
-           GoRouter.of(context).push(AppRouter.kVerificationpasswordCodeView,extra: OtpArguments(phone!, email: '', password: ''));
+           GoRouter.of(context).push(AppRouter.kVerificationpasswordCodeView,extra: OtpArguments(widget.type,phone!, email: '', password: ''));
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('تم إرسال الكود: ${state.resetCode}')),
           );
@@ -72,7 +72,7 @@ class _ForgetYourPasswordViewBodyState
                           .sendResetCode(phone: phone!);
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('يرجى إدخال رقم الهاتف')),
+                        const SnackBar(content: Text("Please enter your phone number")),
                       );
                     }
                   },

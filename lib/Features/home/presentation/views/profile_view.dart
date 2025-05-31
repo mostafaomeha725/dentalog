@@ -1,4 +1,5 @@
 import 'package:dentalog/Features/auth/presentation/manager/cubit/sign_out_cubit/signout_cubit.dart';
+import 'package:dentalog/core/api/end_ponits.dart';
 import 'package:dentalog/core/helper/shared_preferences/shared_preferences.dart';
 import 'package:dentalog/core/services/api_service.dart';
 import 'package:flutter/material.dart';
@@ -7,10 +8,11 @@ import 'package:dentalog/core/app_router/app_router.dart';
 import 'package:dentalog/core/utiles/app_text_styles.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileView extends StatelessWidget {
-  const ProfileView({super.key});
-
+   ProfileView({super.key});
+String? role ;
 
   @override
   Widget build(BuildContext context) {
@@ -87,16 +89,22 @@ class ProfileView extends StatelessWidget {
                    BlocProvider(
   create: (context) => SignoutCubit(ApiService(), SharedPreference()),
   child: BlocConsumer<SignoutCubit, SignoutState>(
-    listener: (context, state) {
+    listener: (context, state)async {
       if (state is SignoutSuccess) {
+                
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("تم تسجيل الخروج بنجاح")),
         );
-        GoRouter.of(context).go(AppRouter.kLoginView);
+        GoRouter.of(context).pushReplacement(AppRouter.kLoginView,extra:role );
       } else if (state is SignoutFailure) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(state.message)),
         );
+      }
+      else if (state is SignoutLoading)
+      {
+          final prefs = await SharedPreferences.getInstance();
+             role = prefs.getString("role");
       }
     },
     builder: (context, state) {

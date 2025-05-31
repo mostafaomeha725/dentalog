@@ -116,7 +116,9 @@ class _LoginViewBodyState extends State<LoginViewBody> {
                         Icon(Icons.lock_outline_rounded, color: Colors.grey[700]),
                   ),
                   const SizedBox(height: 6),
-                  const ForgetPasswordText(),
+                   ForgetPasswordText(onTap: () {
+                      GoRouter.of(context).push(AppRouter.kForgetPasswordView,extra:widget.type );
+                  },),
                   const SizedBox(height: 64),
                   state is SignInLoading
                       ? const CircularProgressIndicator()

@@ -1,3 +1,4 @@
+import 'package:dentalog/Features/auth/presentation/manager/cubit/forget_password_cubit/forgetpassword_cubit.dart';
 import 'package:dentalog/Features/auth/presentation/manager/cubit/verify_reset_password/verifyresetpassword_cubit.dart';
 import 'package:dentalog/Features/auth/presentation/views/widgets/Login_Text.dart';
 import 'package:dentalog/Features/auth/presentation/views/widgets/PinCode_Text_Field.dart';
@@ -7,10 +8,11 @@ import 'package:dentalog/core/widgets/Custom_buttom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
 class VerificationCodepasswordViewBody extends StatefulWidget {
-  const VerificationCodepasswordViewBody({super.key, required this.phone});
+  const VerificationCodepasswordViewBody({super.key, required this.phone, required this.type});
   final String phone;
+    final String type;
+
 
   @override
   State<VerificationCodepasswordViewBody> createState() =>
@@ -23,7 +25,6 @@ class _VerificationCodepasswordViewBodyState
 
   @override
   void dispose() {
-    debugPrint("Disposing _pinController");
     _pinController.dispose();
     super.dispose();
   }
@@ -41,14 +42,21 @@ class _VerificationCodepasswordViewBodyState
               SnackBar(content: Text(state.errMessage)),
             );
           } else if (state is VerifyresetpasswordSuccess) {
+               ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Verification successful!")),
+            );
             final token = state.resetToken;
-            Future.microtask(() {
+
+            // ✅ تأجيل التنقل بطريقة آمنة بعد انتهاء الـ frame الحالي
+            WidgetsBinding.instance.addPostFrameCallback((_) {
               if (!mounted) return;
+
               GoRouter.of(context).pushReplacement(
                 AppRouter.kCreatePasswordView,
                 extra: {
                   'token': token,
                   'phone': widget.phone,
+                  'type':widget.type,
                 },
               );
             });
@@ -57,10 +65,6 @@ class _VerificationCodepasswordViewBodyState
         builder: (context, state) {
           if (state is VerifyresetpasswordLoading) {
             return const Center(child: CircularProgressIndicator());
-          }
-
-          if (!mounted) {
-            return const SizedBox.shrink();
           }
 
           return SingleChildScrollView(
@@ -81,6 +85,7 @@ class _VerificationCodepasswordViewBodyState
                   text: "Verify",
                   onPressed: () {
                     if (!mounted) return;
+
                     final code = _pinController.text.trim();
                     if (code.isNotEmpty) {
                       context.read<VerifyresetpasswordCubit>().verifyResetCode(
@@ -102,8 +107,9 @@ class _VerificationCodepasswordViewBodyState
                   text: "Don’t receive the code?  ",
                   textClick: "Resend",
                   onTap: () {
-                    if (!mounted) return;
-                    // Add your resend code logic here
+                    context
+                          .read<ForgetpasswordCubit>()
+                          .sendResetCode(phone: widget.phone);
                   },
                 ),
                 const SizedBox(height: 16),

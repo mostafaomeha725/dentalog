@@ -2,7 +2,6 @@
 
 class EndPoint {
   static String baseUrl = "https://tempweb90.com/dentalog/api/";
-  static String phpurl = ".php" ;
 }
 
 class ApiKey {

@@ -17,30 +17,32 @@ final String type ;
   @override
   State<SignUpViewBody> createState() => _SignUpViewBodyState();
 }
-
 class _SignUpViewBodyState extends State<SignUpViewBody> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   String? phone;
   String? email;
   String? password;
   String? name;
+  int? selectedSpecialtyId; // ✅ المتغير الجديد
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<SignupCubit, SignUpState>(
-      listener: (context, state)  async{
+      listener: (context, state) async {
         if (state is SignUpSuccess) {
-                    GoRouter.of(context).push(AppRouter.kVerificationCodeView,extra: OtpArguments(phone!, email: email!, password: password!));
+          GoRouter.of(context).push(
+            AppRouter.kVerificationCodeView,
+            extra: OtpArguments(phone!,"", email: email!, password: password!),
+          );
 
           _showSnackBar(context, "Registration successful");
-
         } else if (state is SignUpFailure) {
           _showSnackBar(context, state.errMessage);
         }
       },
       builder: (context, state) {
         final isLoading = state is SignUpLoading;
-    
+
         return SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -57,8 +59,7 @@ class _SignUpViewBodyState extends State<SignUpViewBody> {
                   const SizedBox(height: 24),
                   Text(
                     "Let’s get started!",
-                    style:
-                        TextStyles.bold20w600.copyWith(color: Colors.black),
+                    style: TextStyles.bold20w600.copyWith(color: Colors.black),
                   ),
                   const SizedBox(height: 64),
                   CustomTextField(
@@ -78,18 +79,21 @@ class _SignUpViewBodyState extends State<SignUpViewBody> {
                     },
                     prefixIcon: Icon(Icons.phone, color: Colors.grey[700]),
                   ),
-                     const SizedBox(height: 16),
-             Visibility(
-  visible: widget.type == 'doctor',
-  child: Column(
-    children: [
-      SpecialtiesDropdown(),
-      SizedBox(height: 16,)
-    ],
-  ),
-)
-,
-                  
+                  const SizedBox(height: 16),
+                  Visibility(
+                    visible: widget.type == 'doctor',
+                    child: Column(
+                      children: [
+                        SpecialtiesDropdown(
+                          onSelected: (id) {
+                            selectedSpecialtyId = id;
+                            print(selectedSpecialtyId);
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                    ),
+                  ),
                   CustomTextField(
                     hint: "Email",
                     onChanged: (value) => email = value,
@@ -104,9 +108,7 @@ class _SignUpViewBodyState extends State<SignUpViewBody> {
                     },
                     prefixIcon: Icon(Icons.email, color: Colors.grey[700]),
                   ),
-               
-                                    const SizedBox(height: 16),
-
+                  const SizedBox(height: 16),
                   CustomTextField(
                     hint: "Password",
                     active: true,
@@ -131,8 +133,9 @@ class _SignUpViewBodyState extends State<SignUpViewBody> {
                               email: email!,
                               password: password!,
                               name: name!,
-                               mobile: phone!, user:widget.type ,
-
+                              mobile: phone!,
+                              user: widget.type,
+                            //  specialtyId: selectedSpecialtyId, // ✅ تمرير القيمة
                             );
                       }
                     },
@@ -142,8 +145,10 @@ class _SignUpViewBodyState extends State<SignUpViewBody> {
                   LoginText(
                     text: "Already have an account?  ",
                     textClick: "LogIn",
-                    onTap: () =>
-                        GoRouter.of(context).push(AppRouter.kLoginView,extra: widget.type),
+                    onTap: () => GoRouter.of(context).push(
+                      AppRouter.kLoginView,
+                      extra: widget.type,
+                    ),
                   ),
                 ],
               ),

@@ -12,10 +12,12 @@ import 'package:go_router/go_router.dart';
 class VerificationCodePasswordView extends StatelessWidget {
   const VerificationCodePasswordView({
     super.key,
-    required this.phone,
+    required this.phone, required this.type,
   });
 
   final String phone;
+    final String type;
+
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +38,7 @@ class VerificationCodePasswordView extends StatelessWidget {
         create: (context) => VerifyresetpasswordCubit(ApiService()),
         child: VerificationCodepasswordViewBody(
           phone: phone,
+          type:type,
         ),
       ),
     );

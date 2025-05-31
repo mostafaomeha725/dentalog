@@ -11,11 +11,13 @@ class CreatePasswordViewBody extends StatefulWidget {
   const CreatePasswordViewBody({
     super.key,
     required this.token,
-    required this.phone,
+    required this.phone, required this.type,
   });
 
   final String token;
   final String phone;
+    final String type;
+
 
   @override
   State<CreatePasswordViewBody> createState() => _CreatePasswordViewBodyState();
@@ -36,8 +38,12 @@ class _CreatePasswordViewBodyState extends State<CreatePasswordViewBody> {
   Widget build(BuildContext context) {
     return BlocConsumer<ResetpasswordCubit, ResetpasswordState>(
       listener: (context, state) {
+        if (!mounted) return; // ✅ التأكد من أن الـ widget لا يزال حيًا قبل استخدام context
+
         if (state is ResetpasswordSuccess) {
-          GoRouter.of(context).push(AppRouter.kLoginView);
+           ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text("Password reset successfully!")),            );
+          GoRouter.of(context).pushReplacement(AppRouter.kLoginView,extra: widget.type);
         } else if (state is ResetpasswordFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.errMessage)),

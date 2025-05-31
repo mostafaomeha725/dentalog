@@ -97,7 +97,8 @@ Future<Either<Failure, SignInModel>> signInUser({
         }
 
         if (role != null) {
-          await prefs.saveUser("role", role); // ← حفظ الدور في SharedPreferences
+          await prefs.saveUser("role", role);
+          print("role= $role"); // ← حفظ الدور في SharedPreferences
         }
 
         final signInModel = SignInModel.fromJson(data);
@@ -270,6 +271,7 @@ Future<Either<Failure, Map<String, dynamic>>> editProfileUser({
   required String role,
 }) async {
   final result = await Api().post(
+    withAuth: true,
     name: "users/$id", 
     body: {
       "name": name,

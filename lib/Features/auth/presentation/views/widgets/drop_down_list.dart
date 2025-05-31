@@ -1,9 +1,12 @@
+import 'package:dentalog/Features/auth/data/models/specialty_model.dart';
 import 'package:dentalog/Features/home/presentation/manager/cubit/show_specialties_cubit/show_specialties_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SpecialtiesDropdown extends StatefulWidget {
-  const SpecialtiesDropdown({Key? key}) : super(key: key);
+  final void Function(int?) onSelected; // ✅ تمرير قيمة
+
+  const SpecialtiesDropdown({Key? key, required this.onSelected}) : super(key: key);
 
   @override
   _SpecialtiesDropdownState createState() => _SpecialtiesDropdownState();
@@ -41,7 +44,7 @@ class _SpecialtiesDropdownState extends State<SpecialtiesDropdown> {
             hint: Row(
               children: const [
                 Icon(Icons.medical_services),
-                SizedBox(width: 8),
+                SizedBox(width: 16),
                 Text('Select Specialty'),
               ],
             ),
@@ -63,7 +66,6 @@ class _SpecialtiesDropdownState extends State<SpecialtiesDropdown> {
                 value: specialty.id,
                 child: Row(
                   children: [
-                    // لو الايقونة موجودة، عرضها كصورة صغيرة بجانب الاسم
                     if (specialty.icon.isNotEmpty)
                       Image.network(
                         specialty.icon,
@@ -85,6 +87,7 @@ class _SpecialtiesDropdownState extends State<SpecialtiesDropdown> {
               setState(() {
                 selectedSpecialtyId = value;
               });
+              widget.onSelected(value); // ✅ إرسال القيمة للأب
             },
             validator: (value) =>
                 value == null ? "Please select a specialty" : null,
@@ -93,26 +96,6 @@ class _SpecialtiesDropdownState extends State<SpecialtiesDropdown> {
 
         return Container();
       },
-    );
-  }
-}
-
-class Specialty {
-  final int id;
-  final String name;
-  final String icon;
-
-  Specialty({
-    required this.id,
-    required this.name,
-    required this.icon,
-  });
-
-  factory Specialty.fromJson(Map<String, dynamic> json) {
-    return Specialty(
-      id: json['id'],
-      name: json['name'],
-      icon: json['icon'] ?? '',
     );
   }
 }

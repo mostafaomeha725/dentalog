@@ -1,3 +1,4 @@
+import 'package:dentalog/Features/auth/presentation/manager/cubit/forget_password_cubit/forgetpassword_cubit.dart';
 import 'package:dentalog/Features/auth/presentation/manager/cubit/profile_cubit/profile_cubit.dart';
 import 'package:dentalog/Features/home/presentation/manager/cubit/show_Appointments_cubit/show_appointments_cubit.dart';
 import 'package:dentalog/Features/home/presentation/manager/cubit/show_Specialties_by_id_cubit/show_specialtiesbyid_cubit.dart';
@@ -21,6 +22,9 @@ void main() async {
 runApp(
     MultiBlocProvider(
       providers: [
+          BlocProvider<ForgetpasswordCubit>(
+          create: (context) => ForgetpasswordCubit(ApiService()),
+        ),
         BlocProvider<ProfileCubit>(
           create: (context) => ProfileCubit( ApiService(),SharedPreference())..getProfile(),
         ),

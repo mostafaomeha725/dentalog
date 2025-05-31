@@ -105,7 +105,12 @@ abstract class AppRouter {
         ),
         GoRoute(
           path: kForgetPasswordView,
-          builder: (context, state) => const ForgetYourPasswordView(),
+          pageBuilder: (context, state) {
+            final type = state.extra as String;
+            return MaterialPage(
+              child: ForgetYourPasswordView(type: type),
+            );
+          },
         ),
          GoRoute(
   path: kVerificationCodeView,
@@ -124,7 +129,8 @@ abstract class AppRouter {
   builder: (context, state) {
     final args = state.extra as OtpArguments;
     return VerificationCodePasswordView(
-      phone: args.phone,
+      phone: args.phone, type: args.type!,
+      
 
     );
   },
@@ -136,8 +142,9 @@ abstract class AppRouter {
     final extra = state.extra as Map<String, dynamic>;
     final String phone = extra['phone'];
     final String token = extra['token'];
+    final String type =extra['type'];
 
-    return CreatePasswordView(phone: phone, token: token);
+    return CreatePasswordView(phone: phone, token: token,type:type);
   },
 ),
 
@@ -276,6 +283,7 @@ class OtpArguments {
   final String email;
   final String password;
   final String phone;
+final String? type; 
 
-  OtpArguments(this.phone, {required this.email, required this.password});
+  OtpArguments(this.type  ,this.phone, {required this.email, required this.password});
 }

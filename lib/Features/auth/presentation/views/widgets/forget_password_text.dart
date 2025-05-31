@@ -4,14 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class ForgetPasswordText extends StatelessWidget {
-  const ForgetPasswordText({super.key});
-
+  const ForgetPasswordText({super.key,required this.onTap});
+final void Function() onTap ;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        GoRouter.of(context).push(AppRouter.kForgetPasswordView);
-      },
+      onTap: onTap,
       child: Align(
         alignment: Alignment.centerRight,
         child: Text(
