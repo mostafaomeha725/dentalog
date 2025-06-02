@@ -50,6 +50,7 @@ dependencies:
   equatable: ^2.0.7
   dartz: ^0.10.1
   intl: ^0.20.2
+  flutter_launcher_icons: ^0.14.3
 
 
 
@@ -117,3 +118,10 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/dentist logo 1.png"
+  min_sdk_android: 21
+

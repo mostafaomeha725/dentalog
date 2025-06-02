@@ -1,8 +1,10 @@
 import 'package:dentalog/Features/home/presentation/manager/cubit/rebort_creation_by_doctor_cubit/rebortcreationbydoctor_cubit.dart';
 import 'package:dentalog/Features/home/presentation/manager/cubit/medicine_cubit/medicine_cubit.dart';
+import 'package:dentalog/core/app_router/app_router.dart';
 import 'package:dentalog/core/utiles/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class WriteReportViewBody extends StatefulWidget {
   final int appointmentId;
@@ -36,6 +38,7 @@ class _WriteReportViewBodyState extends State<WriteReportViewBody> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Report submitted successfully")),
           );
+          GoRouter.of(context).push(AppRouter.kDocrtorHomeView);
         } else if (state is RebortcreationbydoctorFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.error)),

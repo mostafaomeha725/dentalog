@@ -32,7 +32,7 @@ class _SignUpViewBodyState extends State<SignUpViewBody> {
         if (state is SignUpSuccess) {
           GoRouter.of(context).push(
             AppRouter.kVerificationCodeView,
-            extra: OtpArguments(phone!,"", email: email!, password: password!),
+            extra: OtpArguments("",phone!, email: email!, password: password!),
           );
 
           _showSnackBar(context, "Registration successful");
@@ -115,8 +115,8 @@ class _SignUpViewBodyState extends State<SignUpViewBody> {
                     onChanged: (value) => password = value,
                     validator: (value) {
                       if (value!.isEmpty) return "Password is required";
-                      if (value.length < 6) {
-                        return "Password must be at least 6 characters";
+                      if (value.length < 8) {
+                        return "Password must be at least 8 characters";
                       }
                       return null;
                     },

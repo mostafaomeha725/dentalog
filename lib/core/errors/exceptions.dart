@@ -12,37 +12,49 @@ class ServerFailure extends Failure {
   factory ServerFailure.fromDioError(DioError dioError) {
     switch (dioError.type) {
       case DioErrorType.connectionTimeout:
-        return ServerFailure('انتهت مهلة الاتصال بالخادم');
+        return ServerFailure('Connection timeout');
       case DioErrorType.sendTimeout:
-        return ServerFailure('انتهت مهلة إرسال البيانات');
+        return ServerFailure('Send timeout');
       case DioErrorType.receiveTimeout:
-        return ServerFailure('انتهت مهلة استقبال البيانات');
+        return ServerFailure('Receive timeout');
       case DioErrorType.badResponse:
         return ServerFailure.fromResponse(
-            dioError.response?.statusCode, dioError.response?.data);
+          dioError.response?.statusCode,
+          dioError.response?.data,
+        );
       case DioErrorType.cancel:
-        return ServerFailure('تم إلغاء الطلب');
+        return ServerFailure('Request was cancelled');
       case DioErrorType.unknown:
         if (dioError.message?.contains('SocketException') ?? false) {
-          return ServerFailure('لا يوجد اتصال بالإنترنت');
+          return ServerFailure('No internet connection');
         }
-        return ServerFailure('حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى');
+        return ServerFailure('Unexpected error occurred, please try again');
       default:
-        return ServerFailure('حدث خطأ، يرجى المحاولة مرة أخرى');
+        return ServerFailure('An error occurred, please try again');
     }
   }
 
   factory ServerFailure.fromResponse(int? statusCode, dynamic response) {
+    if (statusCode == 422) {
+      final errors = response['errors'] as Map<String, dynamic>?;
+      if (errors != null && errors.isNotEmpty) {
+        final allMessages = errors.entries.map((entry) {
+          final messages = entry.value as List<dynamic>;
+          return messages.map((msg) => msg.toString()).join(' - ');
+        }).join('\n');
+        return ServerFailure(allMessages);
+      }
+      return ServerFailure(response['message'] ?? 'Invalid data');
+    }
+
     if (statusCode == 400 || statusCode == 401 || statusCode == 403) {
-      return ServerFailure(response['message'] ?? 'طلب غير مصرح به');
+      return ServerFailure(response['message'] ?? 'Unauthorized request');
     } else if (statusCode == 404) {
-      return ServerFailure('لم يتم العثور على الصفحة المطلوبة');
-    } else if (statusCode == 422) {
-      return ServerFailure(response['message'] ?? 'بيانات غير صالحة');
+      return ServerFailure('Requested page not found');
     } else if (statusCode == 500) {
-      return ServerFailure(response['message'] ?? 'خطأ في الخادم الداخلي');
+      return ServerFailure(response['message'] ?? 'Internal server error');
     } else {
-      return ServerFailure('حدث خطأ، يرجى المحاولة مرة أخرى');
+      return ServerFailure('An error occurred, please try again');
     }
   }
 }

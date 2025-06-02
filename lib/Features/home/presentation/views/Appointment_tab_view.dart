@@ -33,69 +33,71 @@ class _AppointmentTabViewState extends State<AppointmentTabView>
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<RescheduleCubit>(
-      create: (context) => RescheduleCubit(),
-      child: Column(
-        children: [
-          Container(
-            color: Colors.white,
-            child: TabBar(
-              controller: _tabController,
-              labelColor: const Color(0xff134FA2),
-              labelStyle: TextStyles.bold13w400,
-              unselectedLabelColor: Colors.grey,
-              indicatorColor: Colors.blue,
-              tabs: const [
-                Tab(text: "Upcoming"),
-                Tab(text: "Waiting"),
-                Tab(text: "Completed"),
-              ],
+    return Scaffold(
+      body: BlocProvider<RescheduleCubit>(
+        create: (context) => RescheduleCubit(),
+        child: Column(
+          children: [
+            Container(
+              color: Colors.white,
+              child: TabBar(
+                controller: _tabController,
+                labelColor: const Color(0xff134FA2),
+                labelStyle: TextStyles.bold13w400,
+                unselectedLabelColor: Colors.grey,
+                indicatorColor: Colors.blue,
+                tabs: const [
+                  Tab(text: "Upcoming"),
+                  Tab(text: "Waiting"),
+                  Tab(text: "Completed"),
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: BlocConsumer<ShowAppointmentsCubit, ShowAppointmentsState>(
-              listener: (context, state) {},
-              builder: (context, state) {
-                if (state is ShowAppointmentsLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (state is ShowAppointmentsFailure) {
-                  return Center(child: Text(state.errorMessage));
-                } else if (state is ShowAppointmentsSuccess) {
-                  final appointments = state.appointmentsData;
-
-                  // Debug: طباعة أنواع الحالات
-                  for (var a in appointments) {
-                    debugPrint("Status: ${a['status']}");
+            Expanded(
+              child: BlocConsumer<ShowAppointmentsCubit, ShowAppointmentsState>(
+                listener: (context, state) {},
+                builder: (context, state) {
+                  if (state is ShowAppointmentsLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (state is ShowAppointmentsFailure) {
+                    return Center(child: Text(state.errorMessage));
+                  } else if (state is ShowAppointmentsSuccess) {
+                    final appointments = state.appointmentsData;
+      
+                    // Debug: طباعة أنواع الحالات
+                    for (var a in appointments) {
+                      debugPrint("Status: ${a['status']}");
+                    }
+      
+                    final upcoming = appointments
+                        .where((a) =>
+                            a['status'].toString().toLowerCase() == 'upcoming')
+                        .toList();
+                    final waiting = appointments
+                        .where((a) =>
+                            a['status'].toString().toLowerCase() == 'waiting')
+                        .toList();
+                    final completed = appointments
+                        .where((a) =>
+                            a['status'].toString().toLowerCase() == 'completed')
+                        .toList();
+      
+                    return TabBarView(
+                      controller: _tabController,
+                      children: [
+                       AppointmentListUpcoming(initialAppointments: upcoming),
+                        AppointmentListWaiting(initialAppointments: waiting),
+                        AppointmentListCompleted(appointments: completed),
+                      ],
+                    );
+                  } else {
+                    return const SizedBox();
                   }
-
-                  final upcoming = appointments
-                      .where((a) =>
-                          a['status'].toString().toLowerCase() == 'upcoming')
-                      .toList();
-                  final waiting = appointments
-                      .where((a) =>
-                          a['status'].toString().toLowerCase() == 'waiting')
-                      .toList();
-                  final completed = appointments
-                      .where((a) =>
-                          a['status'].toString().toLowerCase() == 'completed')
-                      .toList();
-
-                  return TabBarView(
-                    controller: _tabController,
-                    children: [
-                     AppointmentListUpcoming(initialAppointments: upcoming),
-                      AppointmentListWaiting(initialAppointments: waiting),
-                      AppointmentListCompleted(appointments: completed),
-                    ],
-                  );
-                } else {
-                  return const SizedBox();
-                }
-              },
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -1,6 +1,5 @@
 import 'package:dentalog/Features/home/presentation/manager/cubit/show_history_cubit/showhistory_cubit.dart';
 import 'package:dentalog/Features/home/presentation/views/widgets/build_report_card.dart';
-import 'package:dentalog/core/utiles/app_images.dart';
 import 'package:dentalog/core/utiles/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,11 +26,9 @@ class HistoryViewBody extends StatelessWidget {
                 } else if (state is ShowhistorySuccess) {
                   final allReports = List<Map<String, dynamic>>.from(state.reportsData);
 
-                  // فصل العناصر الجديدة والقديمة
                   final newReports = allReports.where((e) => e['is_new'] == true).toList();
                   final oldReports = allReports.where((e) => e['is_new'] != true).toList();
 
-                  // ترتيب كل مجموعة حسب التاريخ من الأحدث إلى الأقدم
                   newReports.sort((a, b) {
                     final dateA = DateTime.tryParse(a['created_at'] ?? '') ?? DateTime(2000);
                     final dateB = DateTime.tryParse(b['created_at'] ?? '') ?? DateTime(2000);
@@ -46,7 +43,6 @@ class HistoryViewBody extends StatelessWidget {
 
                   return ListView(
                     children: [
-                      // العناصر الجديدة
                       ...newReports.map((report) => Column(
                             children: [
                               BuildReportCard(
@@ -54,17 +50,15 @@ class HistoryViewBody extends StatelessWidget {
                                 doctor: report['doctor_name'] ?? 'Unknown Doctor',
                                 title: report['message'] ?? '',
                                 time: getTimeOrDate(report),
-                                image: Assets.assetsDrKareem,
+                                image: report['doctor_image'] ?? '', // ✅ Use image from API
                                 isNew: report['is_new'] ?? false,
                               ),
                               const SizedBox(height: 8),
                             ],
                           )),
 
-                      // فاصل "New"
                       if (newReports.isNotEmpty) buildDivider(screenWidth),
 
-                      // العناصر القديمة
                       ...oldReports.map((report) => Column(
                             children: [
                               BuildReportCard(
@@ -72,7 +66,7 @@ class HistoryViewBody extends StatelessWidget {
                                 doctor: report['doctor_name'] ?? 'Unknown Doctor',
                                 title: report['message'] ?? '',
                                 time: getTimeOrDate(report),
-                                image: Assets.assetsDrKareem,
+                                image: report['doctor_image'] ?? '', // ✅
                                 isNew: report['is_new'] ?? false,
                               ),
                               const SizedBox(height: 8),
@@ -92,7 +86,6 @@ class HistoryViewBody extends StatelessWidget {
     );
   }
 
-  // إظهار الوقت إذا أقل من 24 ساعة، وإلا التاريخ
   String getTimeOrDate(Map<String, dynamic> report) {
     final createdAt = DateTime.tryParse(report['created_at'] ?? '') ?? DateTime(2000);
     final now = DateTime.now();
@@ -105,7 +98,6 @@ class HistoryViewBody extends StatelessWidget {
     }
   }
 
-  // فاصل "New"
   Widget buildDivider(double screenWidth) {
     return Row(
       children: [

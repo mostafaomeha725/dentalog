@@ -42,7 +42,7 @@ class OnBoardingOneViewBody extends StatelessWidget {
             right: 0,
             child: TextButton(
               onPressed: () {
-                _pageController.jumpToPage(2); // تخطي إلى آخر صفحة
+               GoRouter.of(context).pushReplacement(AppRouter.kTypeUserView) ;// تخطي إلى آخر صفحة
               },
               child: Text("Skip",
                   style:

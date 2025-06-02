@@ -7,9 +7,11 @@ import 'package:dentalog/Features/auth/presentation/views/sign_up_view.dart';
 import 'package:dentalog/Features/auth/presentation/views/type_user_view.dart';
 import 'package:dentalog/Features/auth/presentation/views/verification_code_password_view.dart';
 import 'package:dentalog/Features/auth/presentation/views/verification_code_view.dart';
+import 'package:dentalog/Features/home/presentation/views/Appointment_tab_view.dart';
 import 'package:dentalog/Features/home/presentation/views/Book_Appointment_view.dart';
 import 'package:dentalog/Features/home/presentation/views/Notification_view.dart';
 import 'package:dentalog/Features/home/presentation/views/appointment_view.dart';
+import 'package:dentalog/Features/home/presentation/views/doctor_Appointment_Tab_View.dart';
 import 'package:dentalog/Features/home/presentation/views/doctor_home_view.dart';
 import 'package:dentalog/Features/home/presentation/views/doctor_info_view.dart';
 import 'package:dentalog/Features/home/presentation/views/doctor_view.dart';
@@ -18,10 +20,12 @@ import 'package:dentalog/Features/home/presentation/views/history_view.dart';
 import 'package:dentalog/Features/home/presentation/views/home_view.dart';
 import 'package:dentalog/Features/home/presentation/views/new_password_view.dart';
 import 'package:dentalog/Features/home/presentation/views/patient_detailes_view.dart';
+import 'package:dentalog/Features/home/presentation/views/privacy_police_view.dart';
 import 'package:dentalog/Features/home/presentation/views/profile_view.dart';
 import 'package:dentalog/Features/home/presentation/views/report_view.dart';
 import 'package:dentalog/Features/home/presentation/views/reschedule_appoinment_view.dart';
 import 'package:dentalog/Features/home/presentation/views/show_specialties_doctor_view.dart';
+import 'package:dentalog/Features/home/presentation/views/terms_condition_view.dart';
 import 'package:dentalog/Features/home/presentation/views/waiting_list_view.dart';
 import 'package:dentalog/Features/home/presentation/views/write_report_view.dart';
 import 'package:dentalog/Features/on_boarding/on_boarding_one_view.dart';
@@ -30,6 +34,8 @@ import 'package:go_router/go_router.dart';
 
 abstract class AppRouter {
   static const kSplashView = '/Splashview';
+      static const kTermsConditionView = '/TermsConditionView';
+        static const kPrivacyPolicyview = '/privacypolicyview';
   static const kOnboardingView = '/onboardingView';
   static const kTypeUserView = '/TypeUserView';
   static const kTypeAuthView = '/TypeAuthView';
@@ -61,6 +67,10 @@ abstract class AppRouter {
   static const kReportView = '/ReportView';
   static const kWriteReportView = '/WriteReportView';
   static const kPatientDetailsView = '/PatientDetailsView';
+    static const kAppointmentTabView = '/AppointmentTabView';
+        static const kDoctorAppointmentTabView = '/DoctorAppointmentTabView';
+
+
 
   static GoRouter getRouter(String initialRoute) {
     return GoRouter(
@@ -285,8 +295,26 @@ GoRoute(
           path: kwaitingListview,
           builder: (context, state) => WaitingListView(),
         ),
+         GoRoute(
+          path: kAppointmentTabView,
+          builder: (context, state) => AppointmentTabView(),
+        ),
+         GoRoute(
+          path: kDoctorAppointmentTabView,
+          builder: (context, state) => DoctorAppointmentTabView(),
+        ),
+                  GoRoute(
+          path: kPrivacyPolicyview,
+          builder: (context, state) => PrivacyPoliceView(),
+        ),
+           GoRoute(
+          path: kTermsConditionView,
+          builder: (context, state) => TermsConditionView(),
+        ),
       ],
+      
     );
+    
   }
 }
 

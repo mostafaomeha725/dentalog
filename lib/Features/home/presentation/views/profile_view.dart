@@ -1,5 +1,4 @@
 import 'package:dentalog/Features/auth/presentation/manager/cubit/sign_out_cubit/signout_cubit.dart';
-import 'package:dentalog/core/api/end_ponits.dart';
 import 'package:dentalog/core/helper/shared_preferences/shared_preferences.dart';
 import 'package:dentalog/core/services/api_service.dart';
 import 'package:flutter/material.dart';
@@ -68,8 +67,7 @@ String? role ;
                     SizedBox(height: dividerSpacing),
                     _buildDivider(),
                     SizedBox(height: itemSpacing),
-                    _buildListTile(Icons.language, "Language"),
-                    SizedBox(height: sectionSpacing),
+                
                     buildSectionTitle("Others"),
                     SizedBox(height: itemSpacing),
                     _buildListTile(Icons.summarize_outlined, "Reports", onTap: () {
@@ -78,11 +76,16 @@ String? role ;
                     SizedBox(height: dividerSpacing),
                     _buildDivider(),
                     SizedBox(height: itemSpacing),
-                    _buildListTile(Icons.privacy_tip, "Privacy Policy"),
+                    _buildListTile(Icons.privacy_tip, "Privacy Policy",onTap: () {
+                      GoRouter.of(context).push(AppRouter.kPrivacyPolicyview);
+                    },),
                     SizedBox(height: dividerSpacing),
                     _buildDivider(),
                     SizedBox(height: itemSpacing),
-                    _buildListTile(Icons.help_outline, "Terms of Use"),
+                    _buildListTile(Icons.help_outline, "Terms of Use",onTap: () {
+                                            GoRouter.of(context).push(AppRouter.kTermsConditionView);
+
+                    },),
                     SizedBox(height: dividerSpacing),
                     _buildDivider(),
                     SizedBox(height: itemSpacing),
@@ -93,7 +96,7 @@ String? role ;
       if (state is SignoutSuccess) {
                 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("تم تسجيل الخروج بنجاح")),
+          const SnackBar(content: Text('Logged out successfully')),
         );
         GoRouter.of(context).pushReplacement(AppRouter.kLoginView,extra:role );
       } else if (state is SignoutFailure) {
@@ -110,7 +113,7 @@ String? role ;
     builder: (context, state) {
       return _buildListTile(
         Icons.logout,
-        state is SignoutLoading ? "جاري تسجيل الخروج..." : "Log out",
+        state is SignoutLoading ? 'Logging out...' : "Log out",
         onTap: state is SignoutLoading
             ? null
             : () {

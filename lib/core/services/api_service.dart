@@ -19,19 +19,21 @@ Future<Either<Failure, SignUpModel>> signUpUser({
   required String password,
   required String type,
   required String mobile,
-   int? specialityId,
+  int? specialityId,
 }) async {
+  final body = {
+    "name": name,
+    "email": email,
+    "phone": mobile,
+    "password": password,
+    "role": type,
+    if (type == 'doctor') "speciality_id": specialityId,
+  };
+
   final response = await Api().post(
     name: 'register',
-    body: {
-      "name": name,
-      "email": email,
-      "phone": mobile,
-      "password": password,
-      "role": type,
-      "speciality_id":specialityId,
-    },
-    errMessage: 'فشل التسجيل',
+    body: body,
+    errMessage: 'Registration failed',
     withAuth: false,
   );
 
@@ -41,8 +43,7 @@ Future<Either<Failure, SignUpModel>> signUpUser({
       try {
         final dataContent = data['data']; // Extract the inner "data" object
         final userJson = dataContent['user'];
-                final role = dataContent['user']['role'];
-
+        final role = userJson['role'];
         final token = dataContent['token'];
 
         final signUpModel = SignUpModel.fromJson(dataContent);
@@ -63,11 +64,12 @@ Future<Either<Failure, SignUpModel>> signUpUser({
 
         return Right(signUpModel);
       } catch (e) {
-        return Left(Failure('فشل تحويل البيانات'));
+        return Left(Failure('Data conversion failed'));
       }
     },
   );
 }
+
 Future<Either<Failure, SignInModel>> signInUser({
   required String phone,
   required String password,
@@ -107,7 +109,7 @@ Future<Either<Failure, SignInModel>> signInUser({
         final signInModel = SignInModel.fromJson(data);
         return Right(signInModel);
       } catch (e) {
-        return Left(Failure("خطأ أثناء حفظ بيانات المستخدم"));
+        return Left(Failure('Error while saving user data'));
       }
     },
   );
@@ -149,7 +151,7 @@ Future<Either<Failure, String>> verifyResetpasswordCode({
       "phone": phone,
       "code": code,
     },
-    errMessage: "فشل التحقق من الكود",
+    errMessage: 'Code verification failed',
   );
 
   return result.fold(
@@ -157,7 +159,7 @@ Future<Either<Failure, String>> verifyResetpasswordCode({
     (data) {
       final token = data['data']?['reset_token'];
       if (token == null) {
-        return Left(Failure('لم يتم العثور على رمز إعادة التعيين'));
+        return Left(Failure('The reset code was not found.'));
       }
       return Right(token);
     },
@@ -176,7 +178,7 @@ Future<Either<Failure, Unit>> resetPassword({
       "token": token,
       "password": password,
     },
-    errMessage: "فشل إعادة تعيين كلمة المرور",
+    errMessage: 'Failed to reset the password',
   );
 
   return result.fold(
@@ -195,7 +197,7 @@ Future<Either<Failure, String>> forgetPassword({
     body: {
       "phone": phone,
     },
-    errMessage: "فشل في إرسال كود الاستعادة",
+    errMessage:'Failed to send the recovery code',
   );
 
   return result.fold(
@@ -205,7 +207,7 @@ Future<Either<Failure, String>> forgetPassword({
       if (code != null) {
         return Right(code.toString());
       } else {
-        return Left(Failure("لم يتم استلام كود التحقق"));
+        return Left(Failure('The verification code has not been received.'));
       }
     },
   );
@@ -323,10 +325,10 @@ Future<Either<Failure, Map<String, dynamic>>> editProfileUser({
 
       return Right(data);
     } else {
-      return Left(ServerFailure('فشل في تعديل الحساب: ${response.statusMessage ?? 'خطأ غير معروف'}'));
+      return Left(ServerFailure('Failed to modify the account: ${response.statusMessage ?? 'Unknown Error'}'));
     }
   } catch (e) {
-    return Left(ServerFailure('خطأ في الاتصال بالسيرفر: $e'));
+    return Left(ServerFailure('Error connecting to the server: $e'));
   }
 }
 
@@ -453,7 +455,7 @@ Future<Either<Failure, Map<String, dynamic>>> submitAppointmentRequest({
       'address': address,
       'problem_description': problemDescription,
     },
-    errMessage: 'فشل في حجز الموعد',
+    errMessage: 'Failed to book the appointment',
   );
 
 
@@ -480,7 +482,7 @@ Future<Either<Failure, Map<String, dynamic>>> rescheduleAppointmentRequest({
       'appointment_date': appointmentDate,
       'appointment_time': appointmentTime,
     },
-    errMessage: 'فشل في إعادة جدولة الموعد',
+    errMessage: 'Failed to reschedule the appointment.',
   );
 
   return response.fold(
@@ -504,7 +506,7 @@ Future<Either<Failure, Map<String, dynamic>>> rescheduleAppointmentRequest({
       body: {
         'status': status,
       },
-      errMessage: 'فشل في تحديث حالة الموعد',
+      errMessage: 'Failed to update the appointment status.',
     );
 
     return response.fold(
@@ -530,7 +532,7 @@ Future<Either<Failure, Map<String, dynamic>>> submitDoctorRating({
       'rating': rating,
       'review': review,
     },
-    errMessage: 'فشل في إرسال التقييم',
+    errMessage: "Failed to send the evaluation.",
   );
 
   return response.fold(
@@ -557,7 +559,7 @@ Future<Either<Failure, Map<String, dynamic>>> submitDoctorRating({
       'advice': advice,
       'medicines': medicines,
     },
-    errMessage: 'فشل في إنشاء التقرير',
+    errMessage: "Failed to generate the report",
   );
 
   return response.fold(
@@ -594,5 +596,23 @@ Future<Either<Failure, Map<String, dynamic>>> getNotifications() async {
   return response;
 }
 
+Future<Either<Failure, Map<String, dynamic>>> markNotificationAsRead(int profileId) async {
+  return await Api().put(
+    name: "notifications/$profileId/read", // This matches the Postman endpoint
+    errMessage: "Failed to mark notification as read",
+    withAuth: true,
+  );
+}
+
+
+Future<Either<Failure, Map<String, dynamic>>> getDoctorSchedules(int doctorId) async {
+  final response = await Api().get(
+    name: "doctors/$doctorId/schedules",
+    errMessage: "Failed to get doctor schedules",
+    withAuth: true,
+  );
+
+  return response;
+}
 
 }

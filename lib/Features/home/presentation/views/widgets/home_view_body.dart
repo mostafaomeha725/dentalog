@@ -25,7 +25,7 @@ class HomeViewBody extends StatelessWidget {
 
           // Search Bar
 
-          CustomSearchHome(),
+         // CustomSearchHome(),
           SizedBox(height: 16),
 
           // Medical Checks Banner

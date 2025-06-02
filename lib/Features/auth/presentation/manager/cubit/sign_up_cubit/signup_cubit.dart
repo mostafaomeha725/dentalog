@@ -11,36 +11,36 @@ class SignupCubit extends Cubit<SignUpState> {
 
   final ApiService apiService;
   final SharedPreference sharedPreference;
+Future<void> registerUser({
+  required String name,
+  required String email,
+  required String mobile,
+  required String password,
+  required String user,
+  int? specialityId,
+}) async {
+  emit(SignUpLoading());
 
-  Future<void> registerUser({
-    required String name,
-    required String email,
-    required String mobile,
-    required String password,
-    required String user,
-    int? specialityId,
-  }) async {
-    emit(SignUpLoading());
+  try {
+    final result = await apiService.signUpUser(
+      name: name,
+      email: email,
+      mobile: mobile,
+      password: password,
+      type: user,
+      specialityId: user == 'doctor' ? specialityId : null, // ✅ التعديل هنا
+    );
 
-    try {
-      final result = await apiService.signUpUser(
-        name: name,
-        email: email,
-        mobile: mobile,
-        password: password,
-        type: user,
-        specialityId: specialityId
-      );
-
-      result.fold(
-        (failure) => emit(SignUpFailure(errMessage: failure.errMessage)),
-        (_) async {
-          await sharedPreference.clearProfileCache();
-          emit(SignUpSuccess(email: email, password: password));
-        },
-      );
-    } catch (e) {
-      emit(SignUpFailure(errMessage: "حدث خطأ غير متوقع"));
-    }
+    result.fold(
+      (failure) => emit(SignUpFailure(errMessage: failure.errMessage)),
+      (_) async {
+        await sharedPreference.clearProfileCache();
+        emit(SignUpSuccess(email: email, password: password));
+      },
+    );
+  } catch (e) {
+    emit(SignUpFailure(errMessage: "حدث خطأ غير متوقع"));
   }
+}
+
 }

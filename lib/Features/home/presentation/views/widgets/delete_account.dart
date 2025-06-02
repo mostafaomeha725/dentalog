@@ -20,9 +20,9 @@ class DeleteAccount extends StatelessWidget {
         listener: (context, state) {
           if (state is DeleteAccountSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("تم حذف الحساب بنجاح")),
+              const SnackBar(content: Text('The account has been successfully deleted.')),
             );
-            GoRouter.of(context).pushReplacement(AppRouter.kLoginView);
+            GoRouter.of(context).pushReplacement(AppRouter.kLoginView,extra: userData['role']);
           } else if (state is DeleteAccountFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message)),

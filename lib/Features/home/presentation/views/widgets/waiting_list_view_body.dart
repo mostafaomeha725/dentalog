@@ -102,7 +102,7 @@ widget. isuser?      BlocConsumer<ShowSpecialtiesCubit, ShowSpecialtiesState>(
         const SizedBox(height: 10),
 
         // ✅ خذ المساحة المتبقية كلها
-        const Expanded(
+         Expanded(
           child: WaitingListCard(),
         ),
       ],

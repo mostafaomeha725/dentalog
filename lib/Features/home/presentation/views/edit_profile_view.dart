@@ -17,7 +17,7 @@ class EditProfileView extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          "Mahmoud Washah",
+          userData['name'],
           style: TextStyles.bold20w500,
         ),
         backgroundColor: Colors.white,

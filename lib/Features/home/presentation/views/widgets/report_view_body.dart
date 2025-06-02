@@ -206,6 +206,7 @@ class _ReportViewBodyState extends State<ReportViewBody> {
   }
 
   Widget _buildDoctorInfo(BuildContext context, Map<String, dynamic>? doctor) {
+    print(doctor.toString());
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -215,30 +216,7 @@ class _ReportViewBodyState extends State<ReportViewBody> {
           color: Colors.black,
           margin: const EdgeInsets.symmetric(vertical: 8),
         ),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: SvgPicture.asset(
-                Assets.assetsQr,
-                height: 40,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(doctor?['name'] ?? '', style: TextStyles.bold6w500),
-                  Text("NO. 0123456789", style: TextStyles.bold6w500),
-                  Text("Hospital / Clinic. Kaf El Sheikh General", style: TextStyles.bold6w500),
-                  Text("Address. In front of the Endowments Buildings - Kaf El Sheikh", style: TextStyles.bold6w500),
-                ],
-              ),
-            ),
-          ],
-        ),
+       
       ],
     );
   }

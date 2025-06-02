@@ -25,7 +25,6 @@ class _DoctorInfoViewBodyState extends State<DoctorInfoViewBody> {
     final doctorId = doctor['id'];
     final speciality = doctor['speciality'] ?? {};
 
-    // fallback data from flat doctor map if nested data null
     final name = user['name'] ?? doctor['name'] ?? 'Unknown';
     final phone = user['phone'] ?? doctor['phone'] ?? 'N/A';
     final image = user['image'] ?? doctor['image'];
@@ -82,16 +81,12 @@ class _DoctorInfoViewBodyState extends State<DoctorInfoViewBody> {
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(8),
-                          child: image != null
-                              ? Image.network(
-                                  'https://your-base-url.com/$image',
-                                  width: 92,
-                                  height: 87,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      const Icon(Icons.image_not_supported),
-                                )
-                              : const Icon(Icons.image_not_supported, size: 87),
+                          child: Image(
+                            image: _getImageProvider(_normalizeImageUrl(image)),
+                            width: 92,
+                            height: 87,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -108,12 +103,7 @@ class _DoctorInfoViewBodyState extends State<DoctorInfoViewBody> {
                                   color: const Color(0xff134FA2),
                                 ),
                               ),
-                              Text(
-                                '$experience Years experience',
-                                style: TextStyles.bold12w300.copyWith(
-                                  color: Colors.grey,
-                                ),
-                              ),
+                              
                               const SizedBox(height: 12),
                               Row(
                                 children: List.generate(
@@ -135,7 +125,6 @@ class _DoctorInfoViewBodyState extends State<DoctorInfoViewBody> {
 
                     const SizedBox(height: 20),
 
-                    // Phone Number
                     Text(
                       phone,
                       style: TextStyles.bold18w500.copyWith(
@@ -145,7 +134,6 @@ class _DoctorInfoViewBodyState extends State<DoctorInfoViewBody> {
 
                     const SizedBox(height: 10),
 
-                    // Schedule
                     Text(
                       "Schedule",
                       style: TextStyles.bold16w500.copyWith(
@@ -173,7 +161,6 @@ class _DoctorInfoViewBodyState extends State<DoctorInfoViewBody> {
 
                     const SizedBox(height: 18),
 
-                    // Evaluate doctor
                     Text(
                       "Evaluate doctor",
                       style: TextStyles.bold16w400.copyWith(
@@ -252,7 +239,6 @@ class _DoctorInfoViewBodyState extends State<DoctorInfoViewBody> {
 
               const Spacer(),
 
-              // Book Now Button
               Padding(
                 padding: const EdgeInsets.only(bottom: 16),
                 child: CustomButtom(
@@ -289,6 +275,24 @@ class _DoctorInfoViewBodyState extends State<DoctorInfoViewBody> {
         return "Sunday";
       default:
         return "Unknown";
+    }
+  }
+
+  String? _normalizeImageUrl(dynamic rawUrl) {
+    if (rawUrl == null) return null;
+    String url = rawUrl.toString().trim();
+    url = url.replaceAll(RegExp(r'^https?://.*dentalog/https?://'), 'https://');
+    if (!url.startsWith('http')) {
+      return 'https://your-base-url.com/$url'; // استبدله بالـ base URL الحقيقي
+    }
+    return url;
+  }
+
+  ImageProvider _getImageProvider(String? url) {
+    if (url != null && url.trim().isNotEmpty) {
+      return NetworkImage(url);
+    } else {
+      return const AssetImage('assets/profile_avater.png'); // تأكد أن الصورة موجودة في assets ومضافة في pubspec.yaml
     }
   }
 }

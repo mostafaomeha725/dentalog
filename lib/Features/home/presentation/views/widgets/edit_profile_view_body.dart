@@ -70,7 +70,7 @@ class _EditProfileViewBodyState extends State<EditProfileViewBody> {
       listener: (context, state) async {
         if (state is EditprofileSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('تم تعديل البيانات بنجاح')),
+            const SnackBar(content: Text('The data has been successfully modified.')),
           );
           await context.read<ProfileCubit>().getProfile();
         } else if (state is EditprofileFailure) {

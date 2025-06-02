@@ -1,5 +1,7 @@
 import 'package:dentalog/Features/auth/presentation/manager/cubit/forget_password_cubit/forgetpassword_cubit.dart';
 import 'package:dentalog/Features/auth/presentation/manager/cubit/profile_cubit/profile_cubit.dart';
+import 'package:dentalog/Features/home/presentation/manager/cubit/Doctor_Schedules_cubit/doctor_schedules_cubit.dart';
+import 'package:dentalog/Features/home/presentation/manager/cubit/reschedule_cubit/reschedule_cubit.dart';
 import 'package:dentalog/Features/home/presentation/manager/cubit/show_Appointments_cubit/show_appointments_cubit.dart';
 import 'package:dentalog/Features/home/presentation/manager/cubit/show_Specialties_by_id_cubit/show_specialtiesbyid_cubit.dart';
 import 'package:dentalog/Features/home/presentation/manager/cubit/show_doctor_cubit/showdoctor_cubit.dart';
@@ -46,6 +48,12 @@ runApp(
           BlocProvider<ShowSpecialtiesbyidCubit>(
           create: (context) => ShowSpecialtiesbyidCubit(ApiService()),
         ),
+         BlocProvider<RescheduleCubit>(
+          create: (context) => RescheduleCubit(),
+        ),
+          BlocProvider<DoctorSchedulesCubit>(
+          create: (context) => DoctorSchedulesCubit(),
+        ),
 
       ],
       child: DentalogApp(), 
@@ -60,7 +68,7 @@ class DentalogApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       theme: ThemeData.light().copyWith(scaffoldBackgroundColor: Colors.white),
-      routerConfig: AppRouter.getRouter(AppRouter.kTypeUserView ),
+      routerConfig: AppRouter.getRouter(AppRouter.kSplashView ),
       debugShowCheckedModeBanner: false,
       // ignore: deprecated_member_use
       useInheritedMediaQuery: true,

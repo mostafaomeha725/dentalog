@@ -42,7 +42,7 @@ class _BookAppointmentViewBodyState extends State<BookAppointmentViewBody> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("Appointment booked successfully")),
           );
-        GoRouter.of(context).pushReplacement(AppRouter.kDoctorView);
+        GoRouter.of(context).pushReplacement(AppRouter.kHomeView);
         } else if (state is BookAppointmentFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.message)),

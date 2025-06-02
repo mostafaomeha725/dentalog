@@ -32,7 +32,7 @@ class _ForgetYourPasswordViewBodyState
         } else if (state is ForgetpasswordSuccess) {
            GoRouter.of(context).push(AppRouter.kVerificationpasswordCodeView,extra: OtpArguments(widget.type,phone!, email: '', password: ''));
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('تم إرسال الكود: ${state.resetCode}')),
+            SnackBar(content: Text('Code sent: ${state.resetCode}')),
           );
         }
       },

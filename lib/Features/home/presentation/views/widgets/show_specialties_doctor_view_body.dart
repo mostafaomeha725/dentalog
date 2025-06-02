@@ -55,7 +55,7 @@ class _ShowSpecialtiesDoctorViewBodyState extends State<ShowSpecialtiesDoctorVie
                 return ListView.builder(
                   itemCount: doctors.length,
                   itemBuilder: (context, index) {
-                    return DoctorCard (doctor: doctors[index]);
+                    return DoctorCard (doctor: doctors[index],istrue: false,);
                   },
                 );
               } else {

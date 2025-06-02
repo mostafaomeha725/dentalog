@@ -19,40 +19,37 @@ class _SplashViewBodyState extends State<SplashViewBody> {
     super.initState();
     _navigateToNextScreen();
   }
-Future<void> _navigateToNextScreen() async {
-  final prefs = await SharedPreferences.getInstance();
-  bool isFirstTime = prefs.getBool('isFirstTime') ?? true;
 
-  await Future.delayed(const Duration(seconds: 3));
+  Future<void> _navigateToNextScreen() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isFirstTime = prefs.getBool('isFirstTime') ?? true;
 
-  if (isFirstTime) {
-    await prefs.setBool('isFirstTime', false);
+    await Future.delayed(const Duration(seconds: 3));
+
     if (!mounted) return;
-    GoRouter.of(context).pushReplacement(AppRouter.kOnboardingView);
-    return;
-  }
 
-  String? token = await SharedPreference().getToken();
+    if (isFirstTime) {
+      await prefs.setBool('isFirstTime', false);
+      GoRouter.of(context).pushReplacement(AppRouter.kOnboardingView);
+      return;
+    }
 
-  if (!mounted) return;
+    final token = await SharedPreference().getToken();
 
-  if (token == null) {
-    GoRouter.of(context).pushReplacement(AppRouter.kTypeUserView);
-  } else {
-    // لو في توكن، نجيب الدور (role) من SharedPreferences
-    String role = prefs.getString('role') ?? '';
-
-    if (role == 'doctor') {
-      GoRouter.of(context).pushReplacement(AppRouter.kDocrtorHomeView);
-    } else if (role == 'user') {
-      GoRouter.of(context).pushReplacement(AppRouter.kHomeView);
+    if (token == null || token.isEmpty) {
+      GoRouter.of(context).pushReplacement(AppRouter.kTypeUserView);
     } else {
-      // لو الدور مش معروف نوجه لصفحة اليوزر بشكل افتراضي
-      GoRouter.of(context).pushReplacement(AppRouter.kHomeView);
+      final role = prefs.getString('role') ?? '';
+
+      if (role == 'doctor') {
+        GoRouter.of(context).pushReplacement(AppRouter.kDocrtorHomeView);
+      } else if (role == 'user') {
+        GoRouter.of(context).pushReplacement(AppRouter.kHomeView);
+      } else {
+        GoRouter.of(context).pushReplacement(AppRouter.kHomeView);
+      }
     }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -65,8 +62,7 @@ Future<void> _navigateToNextScreen() async {
             Image.asset(Assets.assetsDentistlogo1),
             Text(
               "Dentalog",
-              style: TextStyles.bold30w400
-                  .copyWith(color: const Color(0xff134FA2)),
+              style: TextStyles.bold30w400.copyWith(color: const Color(0xff134FA2)),
             ),
           ],
         ),

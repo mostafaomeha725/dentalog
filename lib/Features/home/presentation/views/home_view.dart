@@ -34,6 +34,7 @@ class _HomeViewState extends State<HomeView> {
     return Scaffold(
       backgroundColor: Color(0xfff9f9f9),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Color(0xfff9f9f9),
         elevation: 0,
         centerTitle: true,
@@ -52,12 +53,12 @@ class _HomeViewState extends State<HomeView> {
                     : "Account",
             style: TextStyles.bold20w600),
         actions: [
-          if (_selectedIndex == 0) // ✅ إظهار الإشعارات فقط في صفحة "Home"
-            IconButton(
-              icon:
-                  Icon(Icons.notifications, size: 24, color: Colors.grey[700]),
-              onPressed: () {},
-            ),
+          // if (_selectedIndex == 0) // ✅ إظهار الإشعارات فقط في صفحة "Home"
+          //   IconButton(
+          //     icon:
+          //         Icon(Icons.notifications, size: 24, color: Colors.grey[700]),
+          //     onPressed: () {},
+          //   ),
         ],
       ),
 

@@ -40,14 +40,21 @@ class AppointmentListCompleted extends StatelessWidget {
         final phone = doctor?['phone'] ?? user?['phone'] ?? 'N/A';
         final image = doctorUser?['image'] ?? user?['image'] ?? '';
 
-        return AppointmentCard(
-          appointmentId: appointment['id'],
-          doctorName: name,
-          phoneNumber: phone,
-          image: image,
-          dateTime: dateTime,
-          status: appointment['status'],
-          iscompleted: true,
+        return GestureDetector(
+          onTap: () {
+             GoRouter.of(context).push(AppRouter.kHistoryView,extra: appointment['id']);
+            
+          },
+          child: AppointmentCard(
+            appointmentId: appointment['id'],
+            doctorName: name,
+            phoneNumber: phone,
+            image: image,
+            dateTime: dateTime,
+            status: appointment['status'],
+            iscompleted: true,
+            
+          ),
         );
       },
     );

@@ -1,5 +1,6 @@
 import 'package:dentalog/Features/home/presentation/manager/cubit/update_ppointment_status_cubit/updateappointmentstatus_cubit.dart';
 import 'package:dentalog/core/utiles/app_text_styles.dart';
+import 'package:dentalog/core/utiles/app_images.dart'; // للتعامل مع صورة الأفاتار الافتراضية
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -52,7 +53,7 @@ class WaitingCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 28,
-                  backgroundImage: NetworkImage(image),
+                  backgroundImage: _getImageProvider(image),
                 ),
                 const SizedBox(width: 12),
                 Column(
@@ -60,9 +61,10 @@ class WaitingCard extends StatelessWidget {
                   children: [
                     Text(doctorName, style: TextStyles.bold16w600),
                     const SizedBox(height: 4),
-                    Text(phoneNumber,
-                        style: TextStyles.bold14w400Inter
-                            .copyWith(color: Colors.grey)),
+                    Text(
+                      phoneNumber,
+                      style: TextStyles.bold14w400Inter.copyWith(color: Colors.grey),
+                    ),
                   ],
                 ),
               ],
@@ -76,8 +78,10 @@ class WaitingCard extends StatelessWidget {
                   children: [
                     const Icon(Icons.calendar_today_outlined, size: 16, color: Color(0xff134FA2)),
                     const SizedBox(width: 4),
-                    Text('$formattedDate, $formattedTime',
-                        style: TextStyles.bold12w500inter.copyWith(color: const Color(0xff134FA2))),
+                    Text(
+                      '$formattedDate, $formattedTime',
+                      style: TextStyles.bold12w500inter.copyWith(color: const Color(0xff134FA2)),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 6),
@@ -85,8 +89,10 @@ class WaitingCard extends StatelessWidget {
                   children: [
                     const Icon(Icons.info_outline, size: 16, color: Color(0xff134FA2)),
                     const SizedBox(width: 4),
-                    Text(status,
-                        style: TextStyles.bold12w500inter.copyWith(color: const Color(0xff134FA2))),
+                    Text(
+                      status,
+                      style: TextStyles.bold12w500inter.copyWith(color: const Color(0xff134FA2)),
+                    ),
                   ],
                 ),
               ],
@@ -102,7 +108,7 @@ class WaitingCard extends StatelessWidget {
                     ? () {
                         context.read<UpdateAppointmentStatusCubit>().updateStatus(
                               appointmentId: appointmentId,
-                              status: 'completed', // or 'confirmed' based on your backend
+                              status: 'completed', // أو حسب المطلوب من الباكند
                             );
                       }
                     : null,
@@ -123,5 +129,18 @@ class WaitingCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  ImageProvider _getImageProvider(String? url) {
+    if (url != null && url.trim().isNotEmpty) {
+      // معالجة الرابط الخاطئ أو المتكرر
+      if (url.contains('optima-software-solutions.com/dentalog/https')) {
+        url = url.replaceFirst('http://optima-software-solutions.com/dentalog/', '');
+      }
+      return NetworkImage(url);
+    } else {
+      // صورة افتراضية عند غياب الرابط
+      return const AssetImage(Assets.assetsProfileAvater);
+    }
   }
 }

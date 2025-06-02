@@ -1,31 +1,28 @@
 import 'package:dentalog/core/app_router/app_router.dart';
+import 'package:dentalog/core/utiles/app_images.dart';
 import 'package:dentalog/core/utiles/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class DoctorCard extends StatelessWidget {
   final Map doctor;
-
-  const DoctorCard({super.key, required this.doctor});
+final bool istrue;
+  const DoctorCard({super.key, required this.doctor,  this.istrue=true});
 
   @override
   Widget build(BuildContext context) {
-    // بيانات user التفصيلية لو موجودة
     final user = doctor['user'] ?? {};
     final speciality = doctor['speciality'] ?? {};
 
-    // fallback بيانات doctor المبسطة
     final name = user['name'] ?? doctor['name'] ?? 'Unknown';
     final phone = user['phone'] ?? doctor['phone'] ?? 'N/A';
     final specialityName = speciality['name'] ?? doctor['speciality_name'] ?? 'Speciality';
-    final imageUrl = (user['image'] ?? doctor['image']) != null
-        ? 'https://your-base-url.com/${user['image'] ?? doctor['image']}'
-        : null;
+
+    final imageUrl = _normalizeImageUrl(user['image'] ?? doctor['image']);
 
     final schedules = doctor['schedules'] ?? [];
     final rating = num.tryParse(doctor['average_rating']?.toString() ?? '')?.round() ?? 0;
 
-    // دالة للحصول على الوقت بشكل آمن
     String getFormattedTime(Map schedule) {
       final startTime = schedule['start_time']?.toString() ?? '';
       return startTime.length >= 16 ? startTime.substring(11, 16) : 'N/A';
@@ -55,29 +52,27 @@ class DoctorCard extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: imageUrl != null
-                    ? Image.network(
-                        imageUrl,
-                        width: 92,
-                        height: 85,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Icon(Icons.person, size: 85),
-                      )
-                    : const Icon(Icons.person, size: 85),
+                child: Image(
+                  image: _getImageProvider(imageUrl),
+                  width: 92,
+                  height: 85,
+                  fit: BoxFit.cover,
+                ),
               ),
               const SizedBox(height: 6),
-              Column(
+          istrue?    Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Next Available",
-                      style: TextStyles.bold13w500.copyWith(color: const Color(0xff134FA2))),
+                  Text(
+                    "Next Available",
+                    style: TextStyles.bold13w500.copyWith(color: const Color(0xff134FA2)),
+                  ),
                   Text(
                     schedules.isNotEmpty ? getFormattedTime(schedules[0]) : 'N/A',
                     style: TextStyles.bold12w500.copyWith(color: Colors.grey),
                   ),
                 ],
-              ),
+              ):SizedBox(),
             ],
           ),
           const SizedBox(width: 12),
@@ -131,5 +126,30 @@ class DoctorCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// دالة لإرجاع صورة من الشبكة أو صورة افتراضية
+  static ImageProvider _getImageProvider(String? url) {
+    if (url != null && url.trim().isNotEmpty) {
+      return NetworkImage(url);
+    } else {
+      return const AssetImage(Assets.assetsProfileAvater);
+    }
+  }
+
+  /// دالة لتنظيف رابط الصورة
+  static String? _normalizeImageUrl(dynamic rawUrl) {
+    if (rawUrl == null) return null;
+
+    String url = rawUrl.toString().trim();
+
+    // إزالة تكرار النطاق إذا موجود
+    url = url.replaceAll(RegExp(r'^https?://.*dentalog/https?://'), 'https://');
+
+    if (!url.startsWith('http')) {
+      return 'https://your-base-url.com/$url'; // عدل هنا بالـ base URL الفعلي
+    }
+
+    return url;
   }
 }

@@ -45,7 +45,15 @@ class EditableFieldState extends State<EditableField> {
 
     if (updatedValue.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('الرجاء إدخال قيمة قبل الحفظ')),
+        const SnackBar(content: Text('Please enter a value before saving.')),
+      );
+      return;
+    }
+
+    // تحقق طول كلمة المرور لو الحقل هو 'password'
+    if (widget.fieldKey == 'password' && updatedValue.length < 8) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password must be at least 8 characters long.')),
       );
       return;
     }
@@ -55,12 +63,11 @@ class EditableFieldState extends State<EditableField> {
 
     if (storedId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تعذر العثور على معرف المستخدم')),
+        const SnackBar(content: Text('User ID not found.')),
       );
       return;
     }
 
-    // بناء بيانات التحديث بناءً على الحقل الذي يتم تعديله
     final updatedProfileData = {
       'id': storedId,
       'name': widget.fieldKey == 'name' ? updatedValue : (widget.userData['name'] ?? ''),
@@ -70,7 +77,6 @@ class EditableFieldState extends State<EditableField> {
       'role': widget.userData['role'] ?? 'user',
     };
 
-    // استدعاء cubit بعد التعديل
     await context.read<EditprofileCubit>().editProfile(
           id: updatedProfileData['id'],
           name: updatedProfileData['name'],
@@ -83,10 +89,6 @@ class EditableFieldState extends State<EditableField> {
     setState(() {
       isEditing = false;
     });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('تم التعديل بنجاح')),
-    );
   }
 
   @override
@@ -114,6 +116,7 @@ class EditableFieldState extends State<EditableField> {
               ? TextField(
                   controller: controller,
                   decoration: const InputDecoration(border: InputBorder.none),
+                  obscureText: widget.fieldKey == 'password',
                 )
               : Text(
                   controller.text.isEmpty ? '********' : controller.text,
