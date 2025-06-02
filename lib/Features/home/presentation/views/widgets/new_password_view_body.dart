@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class NewPasswordViewBody extends StatefulWidget {
-  const NewPasswordViewBody({super.key});
+  const NewPasswordViewBody({super.key, required this.type});
+final String type ;
 
   @override
   _NewPasswordViewBodyState createState() => _NewPasswordViewBodyState();
@@ -67,7 +68,7 @@ class _NewPasswordViewBodyState extends State<NewPasswordViewBody> {
               },
               child: GestureDetector(
                 onTap: () {
-                  GoRouter.of(context).push(AppRouter.kHistoryView);
+                  GoRouter.of(context).push(AppRouter.kForgetPasswordView);
                 },
                 child: Text(
                   "Forgot Your Password?",

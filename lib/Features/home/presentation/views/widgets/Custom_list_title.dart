@@ -7,7 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class CustomListTitle extends StatefulWidget {
-  const   CustomListTitle({
+  const CustomListTitle({
     super.key,
     this.isEdit = false,
   });
@@ -29,10 +29,10 @@ class _CustomListTitleState extends State<CustomListTitle> {
   Widget build(BuildContext context) {
     return BlocBuilder<ProfileCubit, ProfileState>(
       builder: (context, state) {
-       if (state is ProfileSuccess) {
-  final userData = Map<String, dynamic>.from(state.profileData);
-  return _buildProfileCard(userData);
-} else if (state is ProfileFailure) {
+        if (state is ProfileSuccess) {
+          final userData = Map<String, dynamic>.from(state.profileData);
+          return _buildProfileCard(userData);
+        } else if (state is ProfileFailure) {
           return _buildErrorState(state.errMessage);
         } else {
           return _buildLoadingState();
@@ -73,10 +73,10 @@ class _CustomListTitleState extends State<CustomListTitle> {
               child: Align(
                 alignment: Alignment.topRight,
                 child: GestureDetector(
-                  onTap: (){
-                     GoRouter.of(context).push(AppRouter.kEditprofileView , extra: userData);
+                  onTap: () {
+                    GoRouter.of(context).push(AppRouter.kEditprofileView, extra: userData);
                   },
-                  child:  Icon(
+                  child: const Icon(
                     Icons.edit_square,
                     size: 14,
                     color: Color(0xff134FA2),
@@ -88,9 +88,7 @@ class _CustomListTitleState extends State<CustomListTitle> {
             children: [
               CircleAvatar(
                 radius: 30,
-                backgroundImage: (imageUrl != null && imageUrl.isNotEmpty)
-                    ? NetworkImage(imageUrl)
-                    : const AssetImage(Assets.assetsProfileAvater) as ImageProvider,
+                backgroundImage: _getImageProvider(imageUrl),
               ),
               const SizedBox(width: 12),
               Column(
@@ -111,6 +109,18 @@ class _CustomListTitleState extends State<CustomListTitle> {
         ],
       ),
     );
+  }
+
+  ImageProvider _getImageProvider(String? url) {
+    if (url != null && url.trim().isNotEmpty) {
+      // معالجة الرابط المكرر أو الخاطئ
+      if (url.contains('optima-software-solutions.com/dentalog/https')) {
+        url = url.replaceFirst('http://optima-software-solutions.com/dentalog/', '');
+      }
+      return NetworkImage(url);
+    } else {
+      return const AssetImage(Assets.assetsProfileAvater);
+    }
   }
 
   Widget _buildLoadingState() {

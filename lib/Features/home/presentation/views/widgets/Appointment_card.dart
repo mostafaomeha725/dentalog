@@ -13,6 +13,8 @@ class AppointmentCard extends StatelessWidget {
   final VoidCallback? onReschedulePressed;
   final bool isdoctor ;
   final void Function()? onPressed ;
+    final void Function()? oncanceled ;
+
 
   const AppointmentCard({
     super.key,
@@ -24,7 +26,7 @@ class AppointmentCard extends StatelessWidget {
     required this.status,
     this.iscompleted = false,
     this.onReschedulePressed,
-    this.isdoctor = false, this.onPressed,
+    this.isdoctor = false, this.onPressed, this.oncanceled,
   });
 
   @override
@@ -113,9 +115,7 @@ class AppointmentCard extends StatelessWidget {
                             ),
                           ),
                           TextButton(
-                            onPressed: () {
-                              // TODO: Implement cancellation logic
-                            },
+                            onPressed: oncanceled,
                             child: Text(
                               "Cancel",
                               style: TextStyles.bold12w500inter.copyWith(color: const Color(0xff134FA2)),

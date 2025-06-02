@@ -1,3 +1,4 @@
+import 'package:dentalog/Features/home/presentation/manager/cubit/medicine_cubit/medicine_cubit.dart';
 import 'package:dentalog/Features/home/presentation/manager/cubit/rebort_creation_by_doctor_cubit/rebortcreationbydoctor_cubit.dart';
 import 'package:dentalog/Features/home/presentation/views/widgets/write_report_view_body.dart';
 import 'package:dentalog/core/utiles/app_text_styles.dart';
@@ -6,7 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class WriteReportView extends StatelessWidget {
   const WriteReportView({super.key, required this.id});
-final int id ;
+  final int id;
   @override
   Widget build(BuildContext context) {
     return BlocProvider<RebortcreationbydoctorCubit>(
@@ -25,7 +26,12 @@ final int id ;
           elevation: 0,
           centerTitle: true,
         ),
-        body: WriteReportViewBody(appointmentId: id,),
+        body: BlocProvider<MedicineCubit>(
+          create: (context) => MedicineCubit(),
+          child: WriteReportViewBody(
+            appointmentId: id,
+          ),
+        ),
       ),
     );
   }

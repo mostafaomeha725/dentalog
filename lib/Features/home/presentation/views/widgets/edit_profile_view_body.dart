@@ -1,15 +1,65 @@
+import 'dart:io';
+
 import 'package:dentalog/Features/auth/presentation/manager/cubit/edit_account_cubit/editprofile_cubit.dart';
 import 'package:dentalog/Features/auth/presentation/manager/cubit/profile_cubit/profile_cubit.dart';
+import 'package:dentalog/Features/home/presentation/views/widgets/editable_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dentalog/core/utiles/app_images.dart';
 import 'package:dentalog/core/utiles/app_text_styles.dart';
 import 'package:dentalog/Features/home/presentation/views/widgets/delete_account.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// ... import statements ...
-class EditProfileViewBody extends StatelessWidget {
+
+class EditProfileViewBody extends StatefulWidget {
   const EditProfileViewBody({super.key, required this.userData});
   final Map<String, dynamic> userData;
+
+  @override
+  State<EditProfileViewBody> createState() => _EditProfileViewBodyState();
+}
+
+class _EditProfileViewBodyState extends State<EditProfileViewBody> {
+  File? selectedImage;
+
+  Future<void> _pickImage() async {
+    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (picked != null) {
+      final image = File(picked.path);
+      setState(() {
+        selectedImage = image;
+      });
+
+      final prefs = await SharedPreferences.getInstance();
+      final storedId = prefs.getString('id');
+
+      if (storedId != null) {
+        await context.read<EditprofileCubit>().editProfile(
+              id: storedId,
+              name: widget.userData['name'],
+              email: widget.userData['email'],
+              phone: widget.userData['phone'],
+              password: '',
+              role: widget.userData['role'] ?? 'user',
+              imageFile: image,
+            );
+      }
+    }
+  }
+
+  ImageProvider _getImageProvider(String? imageUrl) {
+    if (imageUrl != null && imageUrl.trim().isNotEmpty) {
+      // معالجة الرابط الخاطئ إن وُجد
+      if (imageUrl.contains('optima-software-solutions.com/dentalog/https')) {
+        imageUrl = imageUrl.replaceFirst(
+            'http://optima-software-solutions.com/dentalog/', '');
+      }
+
+      return NetworkImage(imageUrl);
+    } else {
+      return const AssetImage(Assets.assetsProfileAvater);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +91,9 @@ class EditProfileViewBody extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: screenWidth * 0.18,
-                    backgroundImage: AssetImage(Assets.assetsProfileAvater),
+                    backgroundImage: selectedImage != null
+                        ? FileImage(selectedImage!)
+                        : _getImageProvider(widget.userData['image']),
                   ),
                   Container(
                     decoration: BoxDecoration(
@@ -57,39 +109,40 @@ class EditProfileViewBody extends StatelessWidget {
                     ),
                     child: IconButton(
                       icon: const Icon(Icons.camera_alt, color: Colors.white),
-                      onPressed: () {},
+                      onPressed: _pickImage,
                     ),
                   ),
                 ],
               ),
               SizedBox(height: screenHeight * 0.02),
-              _buildSectionTitle("المعلومات الشخصية"),
-              _EditableField(
-                label: "الاسم",
+              _buildSectionTitle("personal information"),
+              EditableField(
+                label: "Name",
                 fieldKey: "name",
-                initialValue: userData['name'] ?? '',
-                userData: userData,
+                initialValue: widget.userData['name'] ?? '',
+                userData: widget.userData,
               ),
-              _EditableField(
-                label: "البريد الإلكتروني",
+              EditableField(
+                label: "Email",
                 fieldKey: "email",
-                initialValue: userData['email'] ?? '',
-                userData: userData,
+                initialValue: widget.userData['email'] ?? '',
+                userData: widget.userData,
               ),
-              _EditableField(
-                label: "رقم الهاتف",
+              EditableField(
+                label: "Phone Number",
                 fieldKey: "phone",
-                initialValue: userData['phone'] ?? '',
-                userData: userData,
+                initialValue: widget.userData['phone'] ?? '',
+                userData: widget.userData,
               ),
-              _EditableField(
-                label: "كلمة المرور",
+              EditableField(
+                label: "Password",
                 fieldKey: "password",
                 initialValue: '',
-                userData: userData,
+                userData: widget.userData,
               ),
-              SizedBox(height: screenHeight * 0.01),
-              DeleteAccount(userData: userData),
+              
+              SizedBox(height: 12),
+              DeleteAccount(userData: widget.userData),
               SizedBox(height: screenHeight * 0.05),
             ],
           ),
@@ -111,133 +164,4 @@ class EditProfileViewBody extends StatelessWidget {
     );
   }
 }
-
-class _EditableField extends StatefulWidget {
-  final String label;
-  final String fieldKey;
-  final String initialValue;
-  final Map<String, dynamic> userData;
-  final bool isEditable;
-
-  const _EditableField({
-    required this.label,
-    required this.fieldKey,
-    required this.initialValue,
-    required this.userData,
-    this.isEditable = true,
-  });
-
-  @override
-  State<_EditableField> createState() => _EditableFieldState();
-}
-
-class _EditableFieldState extends State<_EditableField> {
-  bool isEditing = false;
-  late TextEditingController controller;
-
-  @override
-  void initState() {
-    controller = TextEditingController(text: widget.initialValue);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
-  Future<void> _submitChange() async {
-  final updatedValue = controller.text.trim();
-
-  if (updatedValue.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('الرجاء إدخال قيمة قبل الحفظ')),
-    );
-    return;
-  }
-
-  final prefs = await SharedPreferences.getInstance();
-  final storedId = prefs.getString('id'); 
-  print(storedId);// تأكد أن المفتاح المستخدم هنا هو نفس المفتاح اللي خزنت به
-
-  if (storedId == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('تعذر العثور على معرف المستخدم')),
-    );
-    return;
-  }
-
-    final updatedProfileData = {
-      'id': storedId,
-      'name': widget.fieldKey == 'name' ? updatedValue : (widget.userData['name'] ?? ''),
-      'email': widget.fieldKey == 'email' ? updatedValue : (widget.userData['email'] ?? ''),
-      'phone': widget.fieldKey == 'phone' ? updatedValue : (widget.userData['phone'] ?? ''),
-      'password': widget.fieldKey == 'password' ? updatedValue : '',
-      'role': widget.userData['role'] ?? 'user',
-    };
-
-    await context.read<EditprofileCubit>().editProfile(
-          id: updatedProfileData['id'],
-          name: updatedProfileData['name'],
-          email: updatedProfileData['email'],
-          phone: updatedProfileData['phone'],
-          password: updatedProfileData['password'],
-          role: updatedProfileData['role'],
-        );
-
-    setState(() {
-      isEditing = false;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              blurRadius: 6,
-              spreadRadius: 2,
-            ),
-          ],
-        ),
-        child: ListTile(
-          title: Text(
-            widget.label,
-            style: TextStyles.bold10w500.copyWith(color: const Color(0xff134FA2)),
-          ),
-          subtitle: isEditing
-              ? TextField(
-                  controller: controller,
-                  decoration: const InputDecoration(border: InputBorder.none),
-                )
-              : Text(
-                  controller.text.isEmpty ? '********' : controller.text,
-                  style: TextStyles.bold16w400.copyWith(color: const Color(0xff6D6565)),
-                ),
-          trailing: widget.isEditable
-              ? IconButton(
-                  icon: Icon(isEditing ? Icons.check : Icons.edit, color: Colors.grey),
-                  onPressed: () {
-                    if (isEditing) {
-                      _submitChange();
-                    } else {
-                      setState(() {
-                        isEditing = true;
-                      });
-                    }
-                  },
-                )
-              : null,
-        ),
-      ),
-    );
-  }
-}
-
+  

@@ -1,9 +1,10 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:dentalog/core/services/api_service.dart';
 import 'package:equatable/equatable.dart';
 
 part 'editprofile_state.dart';
-
 class EditprofileCubit extends Cubit<EditprofileState> {
   final ApiService apiService;
 
@@ -16,6 +17,7 @@ class EditprofileCubit extends Cubit<EditprofileState> {
     required String phone,
     required String password,
     required String role,
+    File? imageFile,
   }) async {
     emit(EditprofileLoading());
 
@@ -25,7 +27,7 @@ class EditprofileCubit extends Cubit<EditprofileState> {
       email: email,
       phone: phone,
       password: password,
-      role: role,
+      imageFile: imageFile,
     );
 
     result.fold(

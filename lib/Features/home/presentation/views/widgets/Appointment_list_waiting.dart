@@ -100,6 +100,7 @@ class DoctorAppointmentListWaiting extends StatefulWidget {
 
 class _DoctorAppointmentListWaitingState extends State<DoctorAppointmentListWaiting> {
   late List<dynamic> appointments;
+  int? selectedIndex;
 
   @override
   void initState() {
@@ -135,49 +136,90 @@ class _DoctorAppointmentListWaitingState extends State<DoctorAppointmentListWait
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
-      itemCount: appointments.length,
-      itemBuilder: (context, index) {
-        final appointment = appointments[index];
+    return BlocConsumer<UpdateAppointmentStatusCubit, UpdateAppointmentStatusState>(
+      listener: (context, state) {
+        if (state is UpdateAppointmentStatusSuccess) {
+          if (selectedIndex != null && selectedIndex! < appointments.length) {
+            setState(() {
+              appointments.removeAt(selectedIndex!);
+              selectedIndex = null;
+            });
+          }
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('تم تحديث حالة الموعد بنجاح')),
+          );
+        } else if (state is UpdateAppointmentStatusFailure) {
+          selectedIndex = null;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('فشل في تحديث الحالة: ${state.error}')),
+          );
+        }
+      },
+      builder: (context, state) {
+        if (state is UpdateAppointmentStatusLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-        final datePart = appointment['appointment_date'];
-        final timePart = appointment['appointment_time'];
+        return ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+          itemCount: appointments.length,
+          itemBuilder: (context, index) {
+            final appointment = appointments[index];
 
-        final parsedDate = DateTime.parse(datePart);
-        final timeParts = timePart.split(':');
-        final dateTime = DateTime(
-          parsedDate.year,
-          parsedDate.month,
-          parsedDate.day,
-          int.parse(timeParts[0]),
-          int.parse(timeParts[1]),
-        );
+            final datePart = appointment['appointment_date'];
+            final timePart = appointment['appointment_time'];
 
-        final user = appointment['user'];
-        final name = user?['name'] ?? 'Unknown';
-        final phone = user?['phone'] ?? 'N/A';
-        final image = user?['image'] ?? '';
+            DateTime? dateTime;
+            try {
+              final parsedDate = DateTime.parse(datePart);
+              final timeParts = timePart.split(':');
+              final hours = int.parse(timeParts[0]);
+              final minutes = int.parse(timeParts[1]);
 
-        return AppointmentCard(
-          appointmentId: appointment['id'],
-          doctorName: name,
-          phoneNumber: phone,
-          image: image,
-          dateTime: dateTime,
-          status: appointment['status'],
-          iscompleted: appointment['status'].toLowerCase() == 'completed',
-          onReschedulePressed: () => _onReschedulePressed(index),
-          isdoctor: true,
-          onPressed: () {
-  final appointmentId = appointment['id'];
-  context.read<UpdateAppointmentStatusCubit>().updateStatus(
-    appointmentId: appointmentId,
-    status: 'completed',
-  );
-}
-          
-          
+              dateTime = DateTime(
+                parsedDate.year,
+                parsedDate.month,
+                parsedDate.day,
+                hours,
+                minutes,
+              );
+            } catch (e) {
+              return const SizedBox();
+            }
+
+            final user = appointment['user'];
+            final name = user?['name'] ?? 'Unknown';
+            final phone = user?['phone'] ?? 'N/A';
+            final image = user?['image'] ?? '';
+
+            return AppointmentCard(
+              appointmentId: appointment['id'],
+              doctorName: name,
+              phoneNumber: phone,
+              image: image,
+              dateTime: dateTime,
+              status: appointment['status'],
+              iscompleted: appointment['status'].toLowerCase() == 'completed',
+              onReschedulePressed: () => _onReschedulePressed(index),
+              isdoctor: true,
+              onPressed: () {
+                selectedIndex = index;
+                final appointmentId = appointment['id'];
+                context.read<UpdateAppointmentStatusCubit>().updateStatus(
+                  appointmentId: appointmentId,
+                  status: 'completed',
+                );
+              },
+              oncanceled: () {
+                selectedIndex = index;
+                final appointmentId = appointment['id'];
+                context.read<UpdateAppointmentStatusCubit>().updateStatus(
+                  appointmentId: appointmentId,
+                  status: 'canceled',
+                );
+              },
+            );
+          },
         );
       },
     );

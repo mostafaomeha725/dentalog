@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HistoryViewBody extends StatelessWidget {
-  const   HistoryViewBody({super.key});
+  const HistoryViewBody({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -25,30 +25,62 @@ class HistoryViewBody extends StatelessWidget {
                 } else if (state is ShowhistoryFailure) {
                   return Center(child: Text(state.errorMessage));
                 } else if (state is ShowhistorySuccess) {
-                  final reports = state.reportsData;
+                  final allReports = List<Map<String, dynamic>>.from(state.reportsData);
 
-                  return ListView.separated(
-                    itemCount: reports.length,
-                    separatorBuilder: (context, index) {
-                      if (reports[index]['is_new'] == true) {
-                        return buildDivider(screenWidth);
-                      }
-                      return const SizedBox(height: 8);
-                    },
-                    itemBuilder: (context, index) {
-                      final report = reports[index];
-                      return BuildReportCard(
-                        id: report['id'],
-                        doctor: report['doctor_name'] ?? 'Unknown Doctor',
-                        title: report['message'] ?? '',
-                        time: report['time_elapsed'] ?? '',
-                        image: Assets.assetsDrKareem, // يمكن ربطه ديناميكياً لاحقاً
-                        isNew: report['is_new'] ?? false,
-                      );
-                    },
+                  // فصل العناصر الجديدة والقديمة
+                  final newReports = allReports.where((e) => e['is_new'] == true).toList();
+                  final oldReports = allReports.where((e) => e['is_new'] != true).toList();
+
+                  // ترتيب كل مجموعة حسب التاريخ من الأحدث إلى الأقدم
+                  newReports.sort((a, b) {
+                    final dateA = DateTime.tryParse(a['created_at'] ?? '') ?? DateTime(2000);
+                    final dateB = DateTime.tryParse(b['created_at'] ?? '') ?? DateTime(2000);
+                    return dateB.compareTo(dateA);
+                  });
+
+                  oldReports.sort((a, b) {
+                    final dateA = DateTime.tryParse(a['created_at'] ?? '') ?? DateTime(2000);
+                    final dateB = DateTime.tryParse(b['created_at'] ?? '') ?? DateTime(2000);
+                    return dateB.compareTo(dateA);
+                  });
+
+                  return ListView(
+                    children: [
+                      // العناصر الجديدة
+                      ...newReports.map((report) => Column(
+                            children: [
+                              BuildReportCard(
+                                id: report['id'],
+                                doctor: report['doctor_name'] ?? 'Unknown Doctor',
+                                title: report['message'] ?? '',
+                                time: getTimeOrDate(report),
+                                image: Assets.assetsDrKareem,
+                                isNew: report['is_new'] ?? false,
+                              ),
+                              const SizedBox(height: 8),
+                            ],
+                          )),
+
+                      // فاصل "New"
+                      if (newReports.isNotEmpty) buildDivider(screenWidth),
+
+                      // العناصر القديمة
+                      ...oldReports.map((report) => Column(
+                            children: [
+                              BuildReportCard(
+                                id: report['id'],
+                                doctor: report['doctor_name'] ?? 'Unknown Doctor',
+                                title: report['message'] ?? '',
+                                time: getTimeOrDate(report),
+                                image: Assets.assetsDrKareem,
+                                isNew: report['is_new'] ?? false,
+                              ),
+                              const SizedBox(height: 8),
+                            ],
+                          )),
+                    ],
                   );
                 } else {
-                  // الحالة الابتدائية، تشغيل الكيوبت هنا:
                   context.read<ShowhistoryCubit>().fetchHistory();
                   return const Center(child: CircularProgressIndicator());
                 }
@@ -60,6 +92,20 @@ class HistoryViewBody extends StatelessWidget {
     );
   }
 
+  // إظهار الوقت إذا أقل من 24 ساعة، وإلا التاريخ
+  String getTimeOrDate(Map<String, dynamic> report) {
+    final createdAt = DateTime.tryParse(report['created_at'] ?? '') ?? DateTime(2000);
+    final now = DateTime.now();
+    final diff = now.difference(createdAt);
+
+    if (diff.inHours >= 24) {
+      return report['report_date'] ?? '';
+    } else {
+      return report['time_elapsed'] ?? '';
+    }
+  }
+
+  // فاصل "New"
   Widget buildDivider(double screenWidth) {
     return Row(
       children: [

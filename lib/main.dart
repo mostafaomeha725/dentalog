@@ -60,7 +60,7 @@ class DentalogApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       theme: ThemeData.light().copyWith(scaffoldBackgroundColor: Colors.white),
-      routerConfig: AppRouter.getRouter(AppRouter.kSplashView ),
+      routerConfig: AppRouter.getRouter(AppRouter.kTypeUserView ),
       debugShowCheckedModeBanner: false,
       // ignore: deprecated_member_use
       useInheritedMediaQuery: true,
@@ -68,3 +68,5 @@ class DentalogApp extends StatelessWidget {
     );
   }
 }
+
+

@@ -1,11 +1,11 @@
 import 'package:dentalog/Features/home/presentation/manager/cubit/rebort_creation_by_doctor_cubit/rebortcreationbydoctor_cubit.dart';
+import 'package:dentalog/Features/home/presentation/manager/cubit/medicine_cubit/medicine_cubit.dart';
 import 'package:dentalog/core/utiles/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-
 class WriteReportViewBody extends StatefulWidget {
-  final int appointmentId; // Pass appointmentId to submit
+  final int appointmentId;
 
   const WriteReportViewBody({super.key, required this.appointmentId});
 
@@ -18,13 +18,23 @@ class _WriteReportViewBodyState extends State<WriteReportViewBody> {
   final TextEditingController _diagnosisController = TextEditingController();
   final TextEditingController _adviceController = TextEditingController();
 
+  String? selectedMedicine;
+  List<dynamic> allMedicines = [];
+  List<Map<String, String>> addedMedicines = [];
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<MedicineCubit>().fetchMedicines();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<RebortcreationbydoctorCubit, RebortcreationbydoctorState>(
       listener: (context, state) {
         if (state is RebortcreationbydoctorSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Report submitted successfully")),
+            const SnackBar(content: Text("Report submitted successfully")),
           );
         } else if (state is RebortcreationbydoctorFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -75,6 +85,77 @@ class _WriteReportViewBodyState extends State<WriteReportViewBody> {
                           value!.isEmpty ? 'Advice is required' : null,
                     ),
                     const SizedBox(height: 20),
+                    _buildSectionTitle("Medicines"),
+                    const SizedBox(height: 8),
+                    BlocBuilder<MedicineCubit, MedicineState>(
+                      builder: (context, medState) {
+                        if (medState is MedicineLoading) {
+                          return const Center(child: CircularProgressIndicator());
+                        } else if (medState is MedicineSuccess) {
+                          allMedicines = medState.medicines;
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              DropdownButton<String>(
+                                isExpanded: true,
+                                hint: const Text("Select Medicine"),
+                                value: selectedMedicine,
+                                items: allMedicines.map<DropdownMenuItem<String>>((medicine) {
+                                  return DropdownMenuItem<String>(
+                                    value: medicine['name'],
+                                    child: Text(medicine['name']),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedMedicine = value;
+                                    final selected = allMedicines.firstWhere(
+                                      (med) => med['name'] == value,
+                                      orElse: () => {},
+                                    );
+
+                                    bool alreadyAdded = addedMedicines.any(
+                                      (med) => med['medicine_id'] == selected['id'].toString(),
+                                    );
+
+                                    if (!alreadyAdded) {
+                                      addedMedicines.add({
+                                        'medicine_id': selected['id'].toString(),
+                                        'dosage_instructions': selected['prescription_instructions'] ?? '',
+                                      });
+                                    }
+                                  });
+                                },
+                              ),
+                              const SizedBox(height: 10),
+                              ...addedMedicines.map((medicine) {
+                                final medicineName = allMedicines.firstWhere(
+                                  (m) => m['id'].toString() == medicine['medicine_id'],
+                                  orElse: () => {'name': 'Unknown'},
+                                )['name'];
+
+                                return ListTile(
+                                  title: Text(medicineName),
+                                  subtitle: Text(medicine['dosage_instructions'] ?? ''),
+                                  trailing: IconButton(
+                                    icon: const Icon(Icons.delete, color: Colors.red),
+                                    onPressed: () {
+                                      setState(() {
+                                        addedMedicines.remove(medicine);
+                                      });
+                                    },
+                                  ),
+                                );
+                              }).toList(),
+                            ],
+                          );
+                        } else if (medState is MedicineFailure) {
+                          return Text("Error: ${medState.errorMessage}");
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                    const SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: state is RebortcreationbydoctorLoading
                           ? null
@@ -84,7 +165,7 @@ class _WriteReportViewBodyState extends State<WriteReportViewBody> {
                                   appointmentId: widget.appointmentId,
                                   diagnosis: _diagnosisController.text,
                                   advice: _adviceController.text,
-                                  medicines: [], // Add medicine data here
+                                  medicines: addedMedicines,
                                 );
                               }
                             },
@@ -106,7 +187,6 @@ class _WriteReportViewBodyState extends State<WriteReportViewBody> {
     return Text(title, style: TextStyles.bold16w500);
   }
 }
-
 
 
 class CustomTextFormField extends StatelessWidget {

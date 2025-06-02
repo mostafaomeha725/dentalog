@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:dentalog/core/services/api_service.dart';
+import 'package:dartz/dartz.dart';
 
 part 'show_appointments_state.dart';
 
@@ -16,7 +17,7 @@ class ShowAppointmentsCubit extends Cubit<ShowAppointmentsState> {
       (failure) =>
           emit(ShowAppointmentsFailure(errorMessage: failure.errMessage)),
       (data) {
-        final appointmentsList = data['data']?['data'];
+        final appointmentsList = data['data'];
         if (appointmentsList != null && appointmentsList is List) {
           emit(ShowAppointmentsSuccess(appointmentsData: appointmentsList));
         } else {

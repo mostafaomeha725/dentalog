@@ -24,7 +24,7 @@ class ApiKey {
 
 
   // static String confirmPassword = "password_confirmation";
-  // static String image = "image";
+  static String image = "image";
   // static String cityId = "city_id";
   // static String specialId = "specialty_id";
 }

@@ -1,8 +1,9 @@
 
+import 'dart:io';
+
 import 'package:dartz/dartz.dart';
 import 'package:dentalog/Features/auth/data/models/sign_in_model.dart';
 import 'package:dentalog/Features/auth/data/models/sign_up_model.dart';
-import 'package:dentalog/Features/home/presentation/manager/cubit/show_specialties_cubit/show_specialties_cubit.dart';
 import 'package:dentalog/core/api/Api.dart';
 import 'package:dentalog/core/api/end_ponits.dart';
 import 'package:dentalog/core/errors/exceptions.dart';
@@ -18,6 +19,7 @@ Future<Either<Failure, SignUpModel>> signUpUser({
   required String password,
   required String type,
   required String mobile,
+   int? specialityId,
 }) async {
   final response = await Api().post(
     name: 'register',
@@ -27,6 +29,7 @@ Future<Either<Failure, SignUpModel>> signUpUser({
       "phone": mobile,
       "password": password,
       "role": type,
+      "speciality_id":specialityId,
     },
     errMessage: 'فشل التسجيل',
     withAuth: false,
@@ -260,52 +263,72 @@ Future<Either<Failure, Map<String, dynamic>>> getProfileData() async {
 
   return result;
 }
-
-
 Future<Either<Failure, Map<String, dynamic>>> editProfileUser({
   required String id,
   required String name,
   required String email,
   required String phone,
   required String password,
-  required String role,
+  File? imageFile,
 }) async {
-  final result = await Api().post(
-    withAuth: true,
-    name: "users/$id", 
-    body: {
-      "name": name,
-      "email": email,
-      "phone": phone,
-      "password": password,
-      "role": role,
-    },
-    errMessage: "Failed to edit profile",
-  );
+  try {
+    Dio dio = Dio();
 
-  if (result.isLeft()) {
-    return result;
+    final token = await SharedPreference().getToken();
+    print("Token: Bearer $token");
+
+    dio.options.headers['Authorization'] = 'Bearer $token';
+
+    final String url = 'https://tempweb90.com/dentalog/api/users/$id';
+
+    FormData formData = FormData.fromMap({
+      'name': name,
+      'email': email,
+      'phone': phone,
+      'password': password,
+      if (imageFile != null)
+        'image': await MultipartFile.fromFile(
+          imageFile.path,
+          filename: imageFile.path.split('/').last,
+        ),
+    });
+
+    final response = await dio.post(
+      url,
+      data: formData,
+      options: Options(
+        followRedirects: false,
+        validateStatus: (status) {
+          return status != null && status < 500;
+        },
+      ),
+    );
+
+    print("Status code: ${response.statusCode}");
+    print("Redirect location: ${response.headers['location']}");
+    print("Response data: ${response.data}");
+
+    if (response.statusCode == 200) {
+      final data = response.data['data'];
+
+      await SharedPreference().clearProfileCache();
+      await SharedPreference().saveProfileData(data);
+
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setString(ApiKey.id, data['id'].toString());
+      prefs.setString(ApiKey.name, data['name']);
+      prefs.setString(ApiKey.phone, data['phone']);
+      prefs.setString(ApiKey.email, data['email']);
+      prefs.setString(ApiKey.user, data['role']);
+
+      return Right(data);
+    } else {
+      return Left(ServerFailure('فشل في تعديل الحساب: ${response.statusMessage ?? 'خطأ غير معروف'}'));
+    }
+  } catch (e) {
+    return Left(ServerFailure('خطأ في الاتصال بالسيرفر: $e'));
   }
-
-  final data = result.getOrElse(() => {});
-  final user = data['data'];
-  final prefs = await SharedPreferences.getInstance();
-
-  await SharedPreference().clearProfileCache();
-  await SharedPreference().saveProfileData(user);
-
-  await prefs.setString(ApiKey.id, user['id'].toString());
-  await prefs.setString(ApiKey.name, user['name']);
-  await prefs.setString(ApiKey.phone, user['phone']);
-  await prefs.setString(ApiKey.email, user['email']);
-  await prefs.setString(ApiKey.user, user['role']);
-
-  return Right(user);
 }
-
-
-
-
 
 Future<Either<Failure, Map<String, dynamic>>> showSpecialties() async {
   try {
@@ -359,21 +382,32 @@ Future<Either<Failure, Map<String, dynamic>>> showSpecialties() async {
 }
 
 
-  Future<Either<Failure, Map<String, dynamic>>> showAppointments() async {
+Future<Either<Failure, Map<String, dynamic>>> showAppointments() async {
   final response = await Api().get(
     name: "appointments",
     errMessage: "Failed to get appointments",
-    withAuth: true, // assuming appointments need authentication
+    withAuth: true,
   );
 
-  return response; // This will be Either<Failure, Map<String, dynamic>>
+  return response;
+}
+
+
+Future<Either<Failure, Map<String, dynamic>>> getMedicines() async {
+  final response = await Api().get(
+    name: "medicines",
+    errMessage: "Failed to get medicines",
+    withAuth: true,
+  );
+
+  return response;
 }
 
 
 
 Future<Either<Failure, Map<String, dynamic>>> showWaitingAppointments() async {
   final response = await Api().get(
-    name: "waiting-list", // ← غيّر هذا حسب اسم endpoint الحقيقي لقائمة الانتظار
+    name: "waiting-list", 
     errMessage: "Failed to get waiting list",
     withAuth: true,
   );
@@ -546,6 +580,18 @@ Future<Either<Failure, dynamic>> deleteAccount({required String password}) async
   );
 
   return result;
+}
+
+
+
+Future<Either<Failure, Map<String, dynamic>>> getNotifications() async {
+  final response = await Api().get(
+    name: "notifications", // Replace with the correct endpoint if different
+    errMessage: "Failed to retrieve notifications",
+    withAuth: true,
+  );
+
+  return response;
 }
 
 

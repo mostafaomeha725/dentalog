@@ -22,6 +22,7 @@ import 'package:dentalog/Features/home/presentation/views/profile_view.dart';
 import 'package:dentalog/Features/home/presentation/views/report_view.dart';
 import 'package:dentalog/Features/home/presentation/views/reschedule_appoinment_view.dart';
 import 'package:dentalog/Features/home/presentation/views/show_specialties_doctor_view.dart';
+import 'package:dentalog/Features/home/presentation/views/waiting_list_view.dart';
 import 'package:dentalog/Features/home/presentation/views/write_report_view.dart';
 import 'package:dentalog/Features/on_boarding/on_boarding_one_view.dart';
 import 'package:flutter/material.dart';
@@ -43,6 +44,8 @@ abstract class AppRouter {
     static const kDocrtorHomeView = '/DoctorHomeView';
 
   static const kDoctorView = '/DoctorView';
+    static const kwaitingListview = '/waitingListview';
+
     static const kShowSpecialtiesDoctorView = '/ShowSpecialtiesDoctorView';
 
   static const kDoctorInfoView = '/DoctorInfoView';
@@ -241,7 +244,12 @@ GoRoute(
         ),
         GoRoute(
           path: kNewPasswordView,
-          builder: (context, state) => NewPasswordView(),
+          pageBuilder: (context, state) {
+            final type = state.extra as String;
+            return MaterialPage(
+              child: NewPasswordView(type: type,),
+            );
+          },
         ),
         GoRoute(
           path: kNotificationView,
@@ -272,6 +280,10 @@ GoRoute(
         GoRoute(
           path: kPatientDetailsView,
           builder: (context, state) => PatientDetailesView(),
+        ),
+          GoRoute(
+          path: kwaitingListview,
+          builder: (context, state) => WaitingListView(),
         ),
       ],
     );

@@ -135,7 +135,7 @@ class _SignUpViewBodyState extends State<SignUpViewBody> {
                               name: name!,
                               mobile: phone!,
                               user: widget.type,
-                            //  specialtyId: selectedSpecialtyId, // ✅ تمرير القيمة
+                             specialityId: selectedSpecialtyId, // ✅ تمرير القيمة
                             );
                       }
                     },
